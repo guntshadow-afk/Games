@@ -110,23 +110,40 @@
             pointer-events: none; 
         }
 
-        /* Modal positioning to avoid blocking the Core */
+        /* --- RESPONSIVE TUTORIAL MODAL FIXES --- */
         #tut-modal {
             position: absolute;
-            top: 50%;
+            /* Default: Centered on screen, high z-index */
+            top: 50%; 
             left: 50%;
             transform: translate(-50%, -50%);
-            /* Shift slightly off center to avoid blocking the core button */
-            margin-left: 200px; 
+            width: 90%; /* Mobile width */
+            max-width: 448px; /* max-w-md */
+            transition: all 0.3s ease;
         }
 
-        /* Responsive shift for mobile */
-        @media (max-width: 768px) {
+        /* Mobile shift: Place lower for better visibility/reach on small screens */
+        @media (max-width: 767px) {
             #tut-modal {
-                margin-left: 0;
-                top: 75%; /* Push it lower */
+                top: auto; /* Ignore vertical center */
+                bottom: 10%; /* Place 10% from the bottom */
+                transform: translate(-50%, 0); /* Center horizontally only */
+                max-width: 90%; 
+                margin: 0;
             }
         }
+        
+        /* Desktop shift: Move it right on larger screens (md+) to avoid core button */
+        @media (min-width: 768px) {
+            #tut-modal {
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                margin-left: 200px; /* Offset on desktop */
+                max-width: 448px; 
+            }
+        }
+        /* --- END RESPONSIVE FIXES --- */
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
