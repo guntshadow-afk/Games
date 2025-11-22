@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cosmic-idle-final-v1';
+const CACHE_NAME = 'cosmic-idle-app-v11';
 const urlsToCache = [
   './',
   'index.html',
