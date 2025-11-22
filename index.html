@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cosmic Universal Idle: Ultimate</title>
+    <title>Cosmic Universal Idle</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
@@ -89,15 +89,41 @@
             @apply flex justify-between items-center bg-slate-800/50 p-3 rounded border border-white/5 mb-2 transition-colors;
         }
         .shop-item-card:hover { @apply bg-slate-800; }
+
+        /* Highlight for Tutorial */
+        .tutorial-highlight {
+            position: relative;
+            z-index: 100;
+            box-shadow: 0 0 0 4px #fbbf24, 0 0 30px rgba(251, 191, 36, 0.8);
+            border-color: #fbbf24 !important;
+            animation: pulse-highlight 1s infinite;
+            pointer-events: auto !important;
+        }
+        @keyframes pulse-highlight { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        
+        .tutorial-overlay-bg {
+            background-color: rgba(0,0,0,0.85);
+            backdrop-filter: blur(4px);
+        }
     </style>
 </head>
 <body class="flex flex-col md:flex-row">
+
+    <!-- TUTORIAL OVERLAY -->
+    <div id="tutorial-overlay" class="fixed inset-0 z-[200] hidden tutorial-overlay-bg flex-col items-center justify-center pointer-events-auto">
+        <div class="glass-panel p-8 max-w-md text-center border-2 border-yellow-400 shadow-2xl">
+            <div class="text-5xl mb-4">🤖</div>
+            <h3 class="text-2xl font-bold text-yellow-400 mb-2" id="tut-title">System Online</h3>
+            <p class="text-gray-300 mb-6 leading-relaxed" id="tut-text">Initializing pilot interface...</p>
+            <button class="btn-push bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg" onclick="nextTutorial()">CONTINUE</button>
+        </div>
+    </div>
 
     <!-- SIDEBAR (Desktop) / BOTTOM BAR (Mobile) -->
     <nav class="md:w-64 bg-[#080b14] border-r border-white/10 flex-shrink-0 flex flex-col z-50 md:relative fixed bottom-0 w-full md:h-full h-auto border-t md:border-t-0">
         <div class="p-6 hidden md:block border-b border-white/5">
             <h1 class="text-2xl font-black tracking-tight text-white">COSMIC<span class="text-indigo-500">IDLE</span></h1>
-            <p class="text-[10px] text-gray-600 mt-1 tracking-widest uppercase">Build 4.0</p>
+            <p class="text-[10px] text-gray-600 mt-1 tracking-widest uppercase">Offline Ready</p>
         </div>
         
         <!-- Nav Links -->
@@ -157,7 +183,7 @@
                     <span class="text-6xl drop-shadow-lg">⚛️</span>
                 </button>
                 <p class="mt-8 text-gray-400 text-sm animate-pulse">Tap to generate energy</p>
-                <p class="mt-2 text-xs text-gray-600 font-mono" id="save-status">Loading Save...</p>
+                <p class="mt-2 text-xs text-gray-600 font-mono" id="save-status">System Ready</p>
             </div>
 
             <!-- TAB: SHOP -->
@@ -212,14 +238,28 @@
                         REBIRTH (Req: 1M CE)
                     </button>
                 </div>
+                <!-- Tier 2 -->
+                 <div class="glass-panel p-6 border-l-4 border-teal-500 opacity-90 hover:opacity-100 transition">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-white">Galactic Shift</h3>
+                        <div class="text-right">
+                            <p class="text-2xl font-black text-teal-400" id="val-gs-gain">+0</p>
+                        </div>
+                    </div>
+                     <p class="text-sm text-gray-400 mb-4">Reset Stardust. Unlocks advanced automation.</p>
+                    <button class="btn-push w-full mt-4 bg-teal-700 text-white font-bold py-3 rounded-lg disabled:opacity-50" id="btn-prestige-2" onclick="doPrestige(2)">
+                        ASCEND (Req: 100 SD)
+                    </button>
+                </div>
             </div>
             
             <!-- TAB: LEADERBOARD -->
             <div id="tab-leaderboard" class="tab-content hidden max-w-3xl mx-auto">
                 <h2 class="text-3xl font-bold text-yellow-400 mb-4">Galactic Rankings</h2>
                 <div class="glass-panel p-4">
+                     <p class="text-gray-400 text-sm mb-4 text-center italic">Leaderboard requires cloud sync. You are currently in Local Mode.</p>
                      <ul id="leaderboard-list" class="space-y-2 text-gray-300">
-                         <li>Loading...</li>
+                         <li class="text-center">Simulating local rankings...</li>
                      </ul>
                 </div>
             </div>
@@ -228,15 +268,9 @@
     </main>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query, limit, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- CONFIG ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'cosmic-ultimate-fixed';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        let db, auth, userId;
-
+        // --- NO FIREBASE DEPENDENCY FOR THIS VERSION TO ENSURE IT WORKS ---
+        // Using LocalStorage for robust offline play
+        
         // --- GAME DATA ---
         const UPGRADES = {
             c1: { name: 'Focus Lens', base: 15, mult: 1.5, power: 1, type: 'click' },
@@ -265,6 +299,7 @@
             upgrades: { c1: 0, c2: 0, c3: 0, i1: 0, i2: 0, i3: 0 },
             relics: [],
             pet: { id: 0, lvl: 1, xp: 0 },
+            tutorial: 0, 
             lastSave: Date.now()
         };
 
@@ -305,6 +340,11 @@
                 state.pet.xp = 0;
                 createFloat("Pet Level Up!", window.innerWidth/2, window.innerHeight/2, '#ec4899');
             }
+            
+            // Tutorial Step 1
+            if(state.tutorial === 1) {
+                nextTutorial(); 
+            }
 
             createFloat(`+${format(gain)}`, e.clientX, e.clientY);
             updateUI();
@@ -318,6 +358,12 @@
                 state.upgrades[id]++;
                 updateUI();
                 updateShopButtons();
+                
+                // Tutorial Step 2
+                if(state.tutorial === 2) {
+                    nextTutorial(); 
+                }
+                saveGame();
             }
         };
         
@@ -335,12 +381,12 @@
             if (id === 0 || (id === 1 && state.sd >= 10) || (id === 2 && state.gs >= 1)) {
                 state.pet.id = id;
                 updateUI();
+                saveGame();
             }
         }
 
         // --- UI ---
         function initShop() {
-            // Generates shop items ONCE to prevent flickering/missing items
             const cList = document.getElementById('list-click');
             const iList = document.getElementById('list-idle');
             cList.innerHTML = ''; iList.innerHTML = '';
@@ -361,7 +407,6 @@
         }
 
         function updateShopButtons() {
-            // Updates costs and button states without redrawing the whole list
             for (const [k, v] of Object.entries(UPGRADES)) {
                 const lvl = state.upgrades[k];
                 const cost = Math.floor(v.base * Math.pow(v.mult, lvl));
@@ -373,6 +418,7 @@
                 if (btn) {
                     btn.innerText = format(cost);
                     btn.className = `px-3 py-1 rounded text-xs font-bold transition-colors ${canAfford ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'bg-slate-700 text-gray-500 cursor-not-allowed'}`;
+                    btn.disabled = !canAfford;
                 }
                 if (lvlLabel) lvlLabel.innerText = `Lv${lvl}`;
             }
@@ -386,10 +432,8 @@
             
             document.getElementById('val-sd-gain').innerText = format(Math.floor(state.ce / 1000000));
 
-            // Update shop buttons
             updateShopButtons();
             
-            // Pet Render
             const petGrid = document.getElementById('pet-grid');
             petGrid.innerHTML = '';
             PETS.forEach(p => {
@@ -404,7 +448,6 @@
                 `;
             });
             
-            // Relic Render
             const relicGrid = document.getElementById('relic-grid');
             relicGrid.innerHTML = '';
             RELICS.forEach(r => {
@@ -442,35 +485,86 @@
             document.getElementById(`tab-${id}`).classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById(`nav-${id}`).classList.add('active');
+            
+            // Extra logic for dynamic tab updates
+            if(id === 'leaderboard') simulateLeaderboard();
         };
+        
+        function simulateLeaderboard() {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = '';
+            // Fake data for offline mode
+            const fakeData = [
+                {name: "VoidWalker", val: 1e12},
+                {name: "StarLord99", val: 5e9},
+                {name: "CosmicCat", val: 1e6},
+                {name: "YOU", val: state.ce}
+            ];
+            fakeData.sort((a,b) => b.val - a.val);
+            
+            fakeData.forEach((d, i) => {
+                 list.innerHTML += `
+                    <li class="flex justify-between bg-slate-800 p-2 rounded border-b border-white/5 ${d.name === 'YOU' ? 'border-l-4 border-indigo-500' : ''}">
+                        <span class="font-mono text-yellow-500">#${i+1}</span>
+                        <span class="text-gray-300 text-xs truncate w-24">${d.name}</span>
+                        <span class="text-ce font-bold">${format(d.val)} CE</span>
+                    </li>`;
+            });
+        }
+
+        // --- TUTORIAL ---
+        function startTutorial() {
+            state.tutorial = 1;
+            showTut("System initialized.<br>Tap the Core to generate Cosmic Energy.");
+        }
+        
+        window.nextTutorial = () => {
+            state.tutorial++;
+            if(state.tutorial === 2) {
+                window.setTab('upgrades');
+                showTut("Excellent.<br>Now purchase your first upgrade from the Shop.");
+            }
+            if(state.tutorial === 3) {
+                 document.getElementById('tutorial-overlay').classList.add('hidden');
+                 document.getElementById('tutorial-overlay').classList.remove('flex');
+                 state.tutorial = 99; 
+                 saveGame();
+            }
+        }
+        
+        function showTut(text) {
+            const overlay = document.getElementById('tutorial-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            document.getElementById('tut-text').innerHTML = text;
+        }
+
+        // --- SAVE/LOAD LOCALSTORAGE ---
+        const SAVE_KEY = 'cosmic_idle_save_v1';
+
+        function saveGame() {
+            localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+            const status = document.getElementById('save-status');
+            if(status) status.innerText = 'Saved.';
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem(SAVE_KEY);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state = { ...state, ...parsed };
+                } catch(e) { console.error("Save corrupt"); }
+            } else {
+                startTutorial();
+            }
+            updateUI();
+        }
 
         // --- INIT ---
-        async function init() {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            await signInAnonymously(auth);
-            userId = auth.currentUser.uid;
-
-            // Initial rendering
+        function init() {
             initShop();
-
-            onSnapshot(doc(db, 'artifacts', appId, 'users', userId, 'save', 'main'), (snap) => {
-                if (snap.exists()) {
-                    const data = snap.data();
-                    // Handle offline
-                    const now = Date.now();
-                    const seconds = (now - data.lastSave) / 1000;
-                    if (seconds > 10) {
-                        // Calculate earnings
-                        let tempState = { ...state, ...data };
-                        // Reconstruct CPS logic here for calculation
-                        // ... simplified for brevity ...
-                    }
-                    state = { ...state, ...data };
-                }
-                updateUI();
-            });
+            loadGame();
 
             setInterval(() => {
                 state.ce += getCPS() / 10;
@@ -478,39 +572,7 @@
             }, 100);
 
             setInterval(saveGame, 5000);
-
             window.setTab('home');
-        }
-        
-        function saveGame() {
-             if(!userId) return;
-             state.lastSave = Date.now();
-             setDoc(doc(db, 'artifacts', appId, 'users', userId, 'save', 'main'), state);
-             document.getElementById('save-status').innerText = 'Saved.';
-             setTimeout(() => document.getElementById('save-status').innerText = '', 1000);
-        }
-        
-        // Mini Game logic same as before...
-        
-        async function updateLeaderboard() {
-            const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard'), limit(10));
-            try {
-                const snap = await getDocs(q);
-                const list = document.getElementById('leaderboard-list');
-                list.innerHTML = '';
-                let data = [];
-                snap.forEach(doc => data.push(doc.data()));
-                data.sort((a,b) => b.ce - a.ce); 
-                
-                data.forEach((d, i) => {
-                    list.innerHTML += `
-                        <li class="flex justify-between bg-slate-800 p-2 rounded border-b border-white/5">
-                            <span class="font-mono text-yellow-500">#${i+1}</span>
-                            <span class="text-gray-300 text-xs truncate w-24">${d.uid.slice(0,8)}</span>
-                            <span class="text-ce font-bold">${format(d.ce)}</span>
-                        </li>`;
-                });
-            } catch (e) { console.error("Leaderboard error", e); }
         }
 
         window.onload = init;
