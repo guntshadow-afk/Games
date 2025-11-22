@@ -1,51 +1,51 @@
-// Service Worker for Celestial Miner RPG
-const CACHE_NAME = 'celestial-miner-v1';
+// Service Worker for Caching - Required for PWA install prompt
+
+const CACHE_NAME = 'cosmic-gem-clicker-v2';
+// List essential files to cache for offline use
 const urlsToCache = [
-    './',
-    './index.html',
-    './manifest.json',
-    'https://cdn.tailwindcss.com',
-    'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700;900&display=swap'
-    // The placeholder icon images are generally fetched dynamically but linking main assets is key
+    '/',
+    'index.html',
+    'manifest.json',
 ];
 
-// Install event: Caches all necessary files
-self.addEventListener('install', event => {
-    console.log('[Service Worker] Install event: Caching Shell');
+self.addEventListener('install', (event) => {
+    // Perform install steps and cache static assets
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => {
-                return cache.addAll(urlsToCache);
-            })
-            .catch(err => {
-                console.error('Failed to cache during install:', err);
+            .then((cache) => {
+                console.log('Service Worker: Opened cache. Caching essential files.');
+                // Note: Caching external resources (like Firebase/Tailwind CDNs) is generally blocked
+                // We cache the local PWA files here.
+                return cache.addAll(urlsToCache).catch(err => {
+                    console.warn('Service Worker: Failed to cache some resources (CDNs likely):', err);
+                });
             })
     );
 });
 
-// Fetch event: Serves files from cache first, then network
-self.addEventListener('fetch', event => {
+self.addEventListener('fetch', (event) => {
+    // Intercept network requests and serve from cache if available
     event.respondWith(
         caches.match(event.request)
-            .then(response => {
+            .then((response) => {
                 // Cache hit - return response
                 if (response) {
                     return response;
                 }
                 // No cache hit - fetch from network
                 return fetch(event.request);
-            })
+            }
+        )
     );
 });
 
-// Activate event: Clears old caches
-self.addEventListener('activate', event => {
-    console.log('[Service Worker] Activate event: Removing old caches');
+self.addEventListener('activate', (event) => {
+    // Clean up old caches
     const cacheWhitelist = [CACHE_NAME];
     event.waitUntil(
-        caches.keys().then(cacheNames => {
+        caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.map(cacheName => {
+                cacheNames.map((cacheName) => {
                     if (cacheWhitelist.indexOf(cacheName) === -1) {
                         return caches.delete(cacheName);
                     }
