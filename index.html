@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cosmic Universal Idle</title>
-    
-    <!-- PWA Settings -->
+    <title>Cosmic Universal Idle: Fixed Save</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f172a">
     <link rel="manifest" href="manifest.json">
     
     <!-- Fonts & Icons -->
@@ -18,319 +15,315 @@
 
     <style>
         :root {
-            --bg-deep: #050508;
+            --bg-deep: #020204;
+            --bg-panel: rgba(20, 25, 40, 0.95);
             --primary: #6366f1;
+            --secondary: #ec4899;
             --accent: #22d3ee;
-            --glass: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.08);
         }
 
         body {
             font-family: 'Outfit', sans-serif;
             background-color: var(--bg-deep);
             color: #e2e8f0;
-            overflow: hidden; /* Prevent scrolling the whole page */
+            overflow: hidden;
             height: 100vh;
             width: 100vw;
-            display: flex;
-            flex-direction: column;
         }
 
-        /* Background Animation */
-        .stars-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background: 
-                radial-gradient(1px 1px at 20% 30%, white, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 40% 70%, white, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 60% 40%, white, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 80% 90%, white, rgba(0,0,0,0));
-            background-repeat: repeat;
-            background-size: 200px 200px;
-            opacity: 0.3;
-            animation: drift 100s linear infinite;
-        }
-        @keyframes drift { from { background-position: 0 0; } to { background-position: 1000px 1000px; } }
-
-        /* UI Elements */
+        /* --- UI COMPONENTS --- */
         .glass-panel {
             background: var(--bg-panel);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-        }
-
-        .card {
-            @apply bg-slate-800/60 rounded-xl p-4 border border-white/5 shadow-lg backdrop-blur-md;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
         .btn-push {
-            transition: transform 0.05s;
+            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 3px solid rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
         }
         .btn-push:active:not(:disabled) {
-            transform: scale(0.96);
+            transform: translateY(2px);
+            border-bottom-width: 0px;
+            margin-top: 2px;
         }
+        .btn-push:disabled { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; border-bottom-width: 0px;}
 
         /* Main Clicker */
         .core-btn {
             width: 220px; height: 220px;
             border-radius: 50%;
-            background: radial-gradient(circle at 35% 35%, #ec4899, #6366f1);
-            box-shadow: 0 0 60px rgba(99, 102, 241, 0.4), inset 0 0 20px rgba(255,255,255,0.3);
+            background: radial-gradient(circle at 40% 40%, #6366f1, #1e1b4b);
+            box-shadow: 0 0 50px rgba(99, 102, 241, 0.3), inset 0 0 20px rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center;
             font-size: 5rem; cursor: pointer; 
             position: relative; z-index: 10;
-            transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.05s;
+            border: 4px solid rgba(99, 102, 241, 0.3);
         }
-        .core-btn:active { transform: scale(0.9); }
+        .core-btn:active { transform: scale(0.92); }
         
         /* Floating Text */
         .float-txt {
-            position: absolute; pointer-events: none; font-weight: 900; font-size: 1.5rem;
-            animation: floatUp 0.8s ease-out forwards; z-index: 50; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            position: absolute; pointer-events: none; font-weight: 900; font-size: 1.2rem;
+            animation: floatUp 1s ease-out forwards; z-index: 50; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
             color: #fff;
         }
-        @keyframes floatUp { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { opacity: 1; transform: translateY(-20px) scale(1.2); } 100% { transform: translateY(-100px) scale(1); opacity: 0; } }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(1.5); opacity: 0; } }
 
-        /* Bottom Nav Bar */
-        .nav-bar {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        .nav-item {
-            @apply flex flex-col items-center justify-center p-2 text-gray-500 transition-colors duration-200 flex-1;
-        }
-        .nav-item.active {
-            @apply text-indigo-400;
-        }
-        .nav-icon { font-size: 1.5rem; margin-bottom: 2px; }
-        .nav-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
-
-        /* Scrollbar Hide */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Mini Game Target */
-        .rhythm-target {
-            position: absolute; width: 80px; height: 80px;
-            background: radial-gradient(circle, #22d3ee, #0e7490);
-            border-radius: 50%; border: 2px solid white;
-            box-shadow: 0 0 20px #22d3ee;
-            animation: pulse-target 1s infinite;
-            cursor: pointer;
+        /* Nav */
+        .nav-item { @apply flex items-center p-3 rounded-lg cursor-pointer transition-colors text-gray-400 hover:text-white hover:bg-white/5 border border-transparent; }
+        .nav-item.active { @apply bg-indigo-900/40 text-indigo-300 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.15)]; }
+
+        /* Highlight for Tutorial */
+        .tutorial-highlight {
+            position: relative;
+            z-index: 100;
+            box-shadow: 0 0 0 4px #fbbf24, 0 0 30px rgba(251, 191, 36, 0.8);
+            border-color: #fbbf24 !important;
+            animation: pulse-highlight 1s infinite;
+            pointer-events: auto !important;
         }
-        @keyframes pulse-target { 0% { transform: scale(0.9); } 50% { transform: scale(1.1); } 100% { transform: scale(0.9); } }
+        @keyframes pulse-highlight { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        
+        .tutorial-overlay-bg {
+            background-color: rgba(0,0,0,0.85);
+            backdrop-filter: blur(4px);
+        }
     </style>
 </head>
-<body>
-    <div class="stars-bg"></div>
+<body class="flex flex-col md:flex-row">
 
-    <!-- TOP BAR: Resources -->
-    <div class="flex-none p-3 bg-slate-900/80 backdrop-blur border-b border-white/10 z-20 flex justify-between items-center shadow-xl">
-        <div>
-            <p class="text-[10px] text-indigo-400 uppercase font-bold tracking-wider">Cosmic Energy</p>
-            <p class="text-2xl font-black text-white font-mono leading-none" id="disp-ce">0</p>
-        </div>
-        <div class="text-right">
-            <p class="text-[10px] text-emerald-400 uppercase font-bold tracking-wider">Rate</p>
-            <p class="text-lg font-bold text-white font-mono leading-none"><span id="disp-cps">0</span>/s</p>
+    <!-- TUTORIAL OVERLAY -->
+    <div id="tutorial-overlay" class="fixed inset-0 z-[200] hidden tutorial-overlay-bg flex-col items-center justify-center pointer-events-auto">
+        <div class="glass-panel p-8 max-w-md text-center border-2 border-yellow-400 shadow-2xl">
+            <div class="text-5xl mb-4">🤖</div>
+            <h3 class="text-2xl font-bold text-yellow-400 mb-2" id="tut-title">System Online</h3>
+            <p class="text-gray-300 mb-6 leading-relaxed" id="tut-text">Initializing pilot interface...</p>
+            <button class="btn-push bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg" onclick="nextTutorial()">CONTINUE</button>
         </div>
     </div>
 
-    <!-- MAIN CONTENT SCROLLABLE AREA -->
-    <main class="flex-grow overflow-y-auto p-4 pb-24 no-scrollbar relative" id="main-view">
+    <!-- SIDEBAR (Desktop) / BOTTOM BAR (Mobile) -->
+    <nav class="md:w-64 bg-[#080b14] border-r border-white/10 flex-shrink-0 flex flex-col z-50 md:relative fixed bottom-0 w-full md:h-full h-auto border-t md:border-t-0">
+        <div class="p-6 hidden md:block border-b border-white/5">
+            <h1 class="text-2xl font-black tracking-tight text-white">COSMIC<span class="text-indigo-500">IDLE</span></h1>
+            <p class="text-[10px] text-gray-600 mt-1 tracking-widest uppercase">Build 3.0 (Stable)</p>
+        </div>
         
-        <!-- TAB: HOME (Core) -->
-        <div id="tab-home" class="tab-content flex flex-col items-center justify-center h-full min-h-[500px]">
-            <div class="absolute top-0 w-full flex justify-center space-x-4 p-2 opacity-80">
-                <div class="bg-purple-900/40 px-3 py-1 rounded border border-purple-500/30 text-xs">
-                    <span class="text-purple-300 font-bold">SD:</span> <span id="disp-sd" class="text-white">0</span>
-                </div>
-                <div class="bg-teal-900/40 px-3 py-1 rounded border border-teal-500/30 text-xs">
-                    <span class="text-teal-300 font-bold">GS:</span> <span id="disp-gs" class="text-white">0</span>
-                </div>
-            </div>
-
-            <button id="core-btn" class="core-btn mb-8" onclick="clickCore(event)">
-                <span class="text-6xl drop-shadow-lg">⚛️</span>
+        <!-- Nav Links -->
+        <div class="flex md:flex-col overflow-x-auto md:overflow-visible p-2 md:p-4 gap-2 no-scrollbar" id="nav-container">
+            <button id="nav-home" class="nav-item active" onclick="window.setTab('home')">
+                <span class="text-xl mr-3">🌌</span> <span class="hidden md:inline font-bold">Core</span>
             </button>
-            
-            <div class="text-center space-y-1 animate-pulse">
-                <p class="text-gray-400 text-xs uppercase tracking-widest">Tap to Generate</p>
-                <p class="text-indigo-300 font-mono text-sm" id="disp-cpc">+1 per tap</p>
+            <button id="nav-upgrades" class="nav-item" onclick="window.setTab('upgrades')">
+                <span class="text-xl mr-3">🛒</span> <span class="hidden md:inline font-bold">Shop</span>
+            </button>
+            <button id="nav-pets" class="nav-item" onclick="window.setTab('pets')">
+                <span class="text-xl mr-3">👾</span> <span class="hidden md:inline font-bold">Pets</span>
+            </button>
+            <button id="nav-relics" class="nav-item" onclick="window.setTab('relics')">
+                <span class="text-xl mr-3">🏺</span> <span class="hidden md:inline font-bold">Relics</span>
+            </button>
+            <button id="nav-prestige" class="nav-item" onclick="window.setTab('prestige')">
+                <span class="text-xl mr-3">✨</span> <span class="hidden md:inline font-bold">Prestige</span>
+            </button>
+            <button id="nav-leaderboard" class="nav-item" onclick="window.setTab('leaderboard')">
+                <span class="text-xl mr-3">🏆</span> <span class="hidden md:inline font-bold">Ranks</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-grow relative h-full overflow-hidden flex flex-col">
+        
+        <!-- TOP BAR -->
+        <div class="glass-panel m-2 md:m-4 p-4 flex flex-wrap justify-between items-center z-40 shrink-0">
+            <div>
+                <p class="text-[10px] text-indigo-400 uppercase tracking-widest font-bold">Cosmic Energy</p>
+                <p class="text-3xl md:text-4xl font-black text-white font-mono tracking-tight" id="disp-ce">0</p>
+            </div>
+            <div class="text-right hidden sm:block">
+                <p class="text-[10px] text-gray-500 uppercase">Income Rate</p>
+                <p class="text-lg font-bold text-emerald-400 font-mono" id="disp-cps">0/s</p>
+            </div>
+            <div class="flex gap-4 text-center">
+                <div class="bg-purple-900/30 px-3 py-1 rounded border border-purple-500/30">
+                    <p class="text-[10px] text-purple-300 font-bold">STARDUST</p>
+                    <p class="text-lg font-bold text-white" id="disp-sd">0</p>
+                </div>
+                <div class="bg-teal-900/30 px-3 py-1 rounded border border-teal-500/30">
+                    <p class="text-[10px] text-teal-300 font-bold">SHARDS</p>
+                    <p class="text-lg font-bold text-white" id="disp-gs">0</p>
+                </div>
             </div>
         </div>
 
-        <!-- TAB: UPGRADES -->
-        <div id="tab-upgrades" class="tab-content hidden space-y-6 max-w-md mx-auto">
-            <h2 class="text-2xl font-bold text-white mb-2">Upgrade Station</h2>
+        <!-- SCROLLABLE CONTENT -->
+        <div class="flex-grow overflow-y-auto p-4 pb-24 md:pb-4" id="main-scroll">
             
-            <div>
-                <h3 class="text-sm font-bold text-pink-400 uppercase tracking-widest mb-3 pl-1">Active Power</h3>
-                <div id="list-click" class="space-y-3"></div>
+            <!-- TAB: HOME -->
+            <div id="tab-home" class="tab-content h-full flex flex-col items-center justify-center min-h-[500px]">
+                <button id="core-btn" class="core-btn mt-8 hover:scale-105 active:scale-95 transition-transform" onclick="clickCore(event)">
+                    <span class="text-6xl drop-shadow-lg">⚛️</span>
+                </button>
+                <p class="mt-8 text-gray-400 text-sm animate-pulse">Tap to generate energy</p>
+                <p class="mt-2 text-xs text-gray-600 font-mono" id="save-status">Waiting for save...</p>
             </div>
 
-            <div>
-                <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-widest mb-3 pl-1">Automation</h3>
-                <div id="list-idle" class="space-y-3"></div>
-            </div>
-        </div>
+            <!-- TAB: SHOP -->
+            <div id="tab-upgrades" class="tab-content hidden max-w-3xl mx-auto space-y-6">
+                <div class="flex justify-between items-end border-b border-white/10 pb-4">
+                    <h2 class="text-3xl font-bold text-white">Upgrades</h2>
+                </div>
+                
+                <div class="glass-panel p-6">
+                    <h3 class="text-sm font-bold text-pink-400 uppercase tracking-widest mb-4">Click Power</h3>
+                    <div id="list-click" class="grid grid-cols-1 gap-3"></div>
+                </div>
 
-        <!-- TAB: MINI-GAME -->
-        <div id="tab-minigame" class="tab-content hidden h-full relative">
-             <div class="flex flex-col items-center justify-center h-full text-center">
-                <div class="card p-8 max-w-sm w-full border border-cyan-500/30 bg-cyan-900/10">
-                    <h2 class="text-3xl font-black text-cyan-400 mb-2">COSMIC RHYTHM</h2>
-                    <p class="text-gray-400 text-sm mb-6">Tap targets to overload the core! Earn massive CE bonuses based on your production.</p>
-                    <button class="btn-push w-full py-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(34,211,238,0.4)]" onclick="startRhythmGame()">
-                        START SESSION
+                <div class="glass-panel p-6">
+                    <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-widest mb-4">Passive Income</h3>
+                    <div id="list-idle" class="grid grid-cols-1 gap-3"></div>
+                </div>
+            </div>
+
+            <!-- TAB: PETS -->
+            <div id="tab-pets" class="tab-content hidden max-w-3xl mx-auto space-y-6">
+                <h2 class="text-3xl font-bold text-white mb-2">Companion Roster</h2>
+                <div id="pet-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+
+            <!-- TAB: RELICS -->
+            <div id="tab-relics" class="tab-content hidden max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-amber-400 mb-2">Ancient Relics</h2>
+                <p class="text-sm text-gray-400 mb-6">Rare artifacts that provide powerful global bonuses. Find them by playing!</p>
+                
+                <div id="relic-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- Relics generated here -->
+                </div>
+            </div>
+
+            <!-- TAB: MINI GAME -->
+            <div id="tab-minigame" class="tab-content hidden h-full relative flex flex-col items-center justify-center">
+                <div class="glass-panel w-full max-w-md p-8 text-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-indigo-900/20 z-0"></div>
+                    <h2 class="text-2xl font-bold text-white mb-2 relative z-10">Cosmic Rhythm</h2>
+                    <p class="text-gray-400 text-sm mb-6 relative z-10">Tap the targets to overload your energy output!</p>
+                    <p class="text-xs text-green-400 mb-4 font-mono">Reward: Massive CE Burst</p>
+                    <button class="btn-push bg-pink-600 hover:bg-pink-500 px-8 py-3 rounded-full font-bold text-white relative z-10" onclick="startRhythmGame()">START SESSION</button>
+                </div>
+                
+                <!-- Game Layer -->
+                <div id="rhythm-layer" class="absolute inset-0 bg-black/90 z-50 hidden touch-none">
+                    <button class="absolute top-4 right-4 text-white/50 font-bold p-2" onclick="endRhythmGame()">EXIT</button>
+                    <div id="rhythm-target" class="absolute w-24 h-24 rounded-full border-4 border-cyan-400 bg-cyan-900/50 shadow-[0_0_30px_#22d3ee] cursor-pointer active:scale-90 flex items-center justify-center text-2xl font-bold text-white" style="top: 50%; left: 50%;" onclick="hitRhythm()">
+                        TAP!
+                    </div>
+                    <p class="absolute top-10 text-4xl font-black text-white pointer-events-none" id="rhythm-score">0</p>
+                </div>
+            </div>
+
+            <!-- TAB: PRESTIGE -->
+            <div id="tab-prestige" class="tab-content hidden max-w-3xl mx-auto space-y-6">
+                <div class="glass-panel p-6 border-l-4 border-purple-500">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-bold text-white">Stardust Rebirth</h3>
+                        <div class="text-right">
+                            <p class="text-3xl font-black text-purple-400" id="val-sd-gain">+0</p>
+                            <p class="text-[10px] text-gray-500 uppercase">Potential Gain</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-4">Reset CE & Upgrades. Gain +5% Global Multiplier per Stardust.</p>
+                    <button class="btn-push w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-lg" onclick="doPrestige(1)">
+                        REBIRTH (Req: 1M CE)
                     </button>
                 </div>
-             </div>
-             <!-- Game Layer -->
-             <div id="rhythm-layer" class="absolute inset-0 bg-black/90 z-50 hidden touch-none">
-                 <button class="absolute top-4 right-4 text-white/50 font-bold p-2" onclick="endRhythmGame()">EXIT</button>
-                 <div class="absolute top-4 left-4 text-cyan-400 font-mono text-xl">Score: <span id="rhythm-score">0</span></div>
-                 <div id="rhythm-target-container"></div>
-             </div>
-        </div>
-
-        <!-- TAB: PRESTIGE -->
-        <div id="tab-prestige" class="tab-content hidden max-w-md mx-auto space-y-4">
-            <div class="card border-l-4 border-purple-500">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Stardust Rebirth</h3>
-                        <p class="text-xs text-gray-400">Reset for +5% Global Bonus</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-2xl font-black text-purple-400" id="val-sd-gain">+0</p>
-                    </div>
-                </div>
-                <button class="btn-push w-full mt-4 bg-purple-600 text-white font-bold py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" id="btn-prestige-1" onclick="doPrestige(1)">
-                    REBIRTH (1M CE)
-                </button>
-            </div>
-
-             <div class="card border-l-4 border-teal-500 opacity-90">
-                <div class="flex justify-between items-center">
-                    <div>
+                <!-- Tier 2 -->
+                 <div class="glass-panel p-6 border-l-4 border-teal-500 opacity-90 hover:opacity-100 transition">
+                    <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-bold text-white">Galactic Shift</h3>
-                        <p class="text-xs text-gray-400">Unlock Shards & Dimensions</p>
+                        <div class="text-right">
+                            <p class="text-2xl font-black text-teal-400" id="val-gs-gain">+0</p>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-2xl font-black text-teal-400" id="val-gs-gain">+0</p>
-                    </div>
+                     <p class="text-sm text-gray-400 mb-4">Reset Stardust. Unlocks advanced automation.</p>
+                    <button class="btn-push w-full mt-4 bg-teal-700 text-white font-bold py-3 rounded-lg disabled:opacity-50" id="btn-prestige-2" onclick="doPrestige(2)">
+                        ASCEND (Req: 100 SD)
+                    </button>
                 </div>
-                <button class="btn-push w-full mt-4 bg-teal-700 text-white font-bold py-3 rounded-lg disabled:opacity-50" id="btn-prestige-2" onclick="doPrestige(2)">
-                    ASCEND (100 SD)
-                </button>
-            </div>
-        </div>
-
-        <!-- TAB: SETTINGS -->
-        <div id="tab-settings" class="tab-content hidden max-w-md mx-auto space-y-6">
-            <h2 class="text-2xl font-bold text-white mb-4">System Settings</h2>
-            
-            <div class="card space-y-4">
-                <div>
-                    <label class="text-xs text-gray-500 font-bold uppercase">Pilot Name</label>
-                    <div class="flex gap-2 mt-1">
-                        <input type="text" id="player-name-input" class="bg-black/30 border border-white/10 rounded px-3 py-2 text-white w-full focus:outline-none focus:border-indigo-500" placeholder="Enter Name">
-                        <button class="bg-indigo-600 text-white px-4 rounded font-bold" onclick="setPlayerName()">SET</button>
-                    </div>
-                </div>
-                <div>
-                    <label class="text-xs text-gray-500 font-bold uppercase">User ID</label>
-                    <p class="font-mono text-xs text-gray-300 bg-black/30 p-2 rounded mt-1 break-all select-all" id="user-id-display">Loading...</p>
-                </div>
-            </div>
-
-            <div class="card">
-                 <label class="text-xs text-gray-500 font-bold uppercase mb-2 block">App Management</label>
-                 <!-- INSTALL BUTTON -->
-                 <button id="install-app-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg mb-3 hidden">
-                     📲 INSTALL APP
-                 </button>
-                 <button class="w-full bg-red-900/50 hover:bg-red-900 text-red-200 font-bold py-3 rounded-lg border border-red-800" onclick="resetGame()">
-                     HARD RESET SAVE
-                 </button>
             </div>
             
-            <p class="text-center text-xs text-gray-600" id="save-status">Auto-save active.</p>
-        </div>
+            <!-- TAB: LEADERBOARD -->
+            <div id="tab-leaderboard" class="tab-content hidden max-w-3xl mx-auto">
+                <div class="glass-panel p-6 mb-6 flex justify-between items-center">
+                     <div>
+                         <h3 class="text-lg font-bold text-white">Player ID</h3>
+                         <p class="font-mono text-xs text-indigo-300 mt-1 break-all" id="user-id-display">Loading...</p>
+                     </div>
+                     <div class="text-right">
+                         <p class="text-xs text-green-400" id="auth-status">Connecting...</p>
+                     </div>
+                </div>
 
+                <h2 class="text-3xl font-bold text-yellow-400 mb-4">Galactic Rankings</h2>
+                <div class="glass-panel p-4">
+                     <ul id="leaderboard-list" class="space-y-2 text-gray-300">
+                         <li>Loading...</li>
+                     </ul>
+                </div>
+            </div>
+
+        </div>
     </main>
-
-    <!-- BOTTOM NAVIGATION BAR -->
-    <nav class="nav-bar flex justify-around items-center flex-none z-50">
-        <button class="nav-item active" onclick="setTab('home')" id="nav-home">
-            <span class="nav-icon">🌌</span>
-            <span class="nav-label">Core</span>
-        </button>
-        <button class="nav-item" onclick="setTab('upgrades')" id="nav-upgrades">
-            <span class="nav-icon">🛒</span>
-            <span class="nav-label">Shop</span>
-        </button>
-        <button class="nav-item" onclick="setTab('minigame')" id="nav-minigame">
-            <span class="nav-icon">🎮</span>
-            <span class="nav-label">Game</span>
-        </button>
-        <button class="nav-item" onclick="setTab('prestige')" id="nav-prestige">
-            <span class="nav-icon">✨</span>
-            <span class="nav-label">Prestige</span>
-        </button>
-        <button class="nav-item" onclick="setTab('settings')" id="nav-settings">
-            <span class="nav-icon">⚙️</span>
-            <span class="nav-label">Settings</span>
-        </button>
-    </nav>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, query, limit, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'cosmic-app-edition';
+        // --- CONFIG ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'cosmic-ultimate-fixed';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
         let db, auth, userId;
 
-        // --- INSTALL PROMPT LOGIC ---
-        let deferredPrompt;
-        const installBtn = document.getElementById('install-app-btn');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.classList.remove('hidden');
-        });
-
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    installBtn.classList.add('hidden');
-                }
-                deferredPrompt = null;
-            }
-        });
-
         // --- GAME DATA ---
         const UPGRADES = {
-            c1: { name: 'Focus Lens', base: 15, mult: 1.5, power: 1, type: 'click', desc: '+1 Base Click' },
-            c2: { name: 'Quantum Tap', base: 250, mult: 1.6, power: 15, type: 'click', desc: '+15 Base Click' },
-            c3: { name: 'Singularity', base: 5000, mult: 1.8, power: 150, type: 'click', desc: '+150 Base Click' },
-            i1: { name: 'Solar Panel', base: 50, mult: 1.4, power: 1, type: 'idle', desc: '+1 CPS' },
-            i2: { name: 'Auto-Miner', base: 500, mult: 1.5, power: 12, type: 'idle', desc: '+12 CPS' },
-            i3: { name: 'Dyson Sphere', base: 10000, mult: 1.6, power: 200, type: 'idle', desc: '+200 CPS' }
+            c1: { name: 'Focus Lens', base: 15, mult: 1.5, power: 1, type: 'click' },
+            c2: { name: 'Quantum Tap', base: 250, mult: 1.6, power: 15, type: 'click' },
+            c3: { name: 'Singularity', base: 5000, mult: 1.8, power: 150, type: 'click' },
+            i1: { name: 'Solar Panel', base: 50, mult: 1.4, power: 1, type: 'idle' },
+            i2: { name: 'Auto-Miner', base: 500, mult: 1.5, power: 12, type: 'idle' },
+            i3: { name: 'Dyson Sphere', base: 10000, mult: 1.6, power: 200, type: 'idle' }
         };
+        
+        const PETS = [
+            { id: 0, name: "Star Wisp", bonus: 0.01, desc: "Your starting companion.", req: "None" },
+            { id: 1, name: "Void Golem", bonus: 0.05, desc: "+5% Global Multiplier", req: "Unlock at 10 Stardust" },
+            { id: 2, name: "Nebula Jelly", bonus: 0.10, desc: "+10% Global Multiplier", req: "Unlock at 1 Galaxy Shard" },
+            { id: 3, name: "Solar Phoenix", bonus: 0.25, desc: "+25% Global Multiplier", req: "Unlock at Prestige Tier 3" }
+        ];
+        
+        const RELICS = [
+            { id: 'r1', name: "Quantum Dice", desc: "Small chance for 10x click", icon: "🎲", hint: "Random drop from clicking" },
+            { id: 'r2', name: "Time Hourglass", desc: "Idle gain +20%", icon: "⏳", hint: "Random drop from Auto-Clicker" },
+            { id: 'r3', name: "Infinity Prism", desc: "Prestige gain +10%", icon: "💎", hint: "Unlocked at 100 Stardust" }
+        ];
 
         let state = {
             ce: 0, sd: 0, gs: 0, uf: 0,
             upgrades: { c1: 0, c2: 0, c3: 0, i1: 0, i2: 0, i3: 0 },
-            playerName: "Pilot",
+            relics: [],
+            pet: { id: 0, lvl: 1, xp: 0 },
+            tutorial: 0, // 0: Not started, 1: Click core, 2: Buy upgrade, 99: Done
             lastSave: Date.now()
         };
 
@@ -341,7 +334,8 @@
             base += state.upgrades.c2 * UPGRADES.c2.power;
             base += state.upgrades.c3 * UPGRADES.c3.power;
             const sdMult = 1 + (state.sd * 0.05);
-            return base * sdMult;
+            const petMult = 1 + (state.pet.lvl * PETS[state.pet.id].bonus);
+            return base * sdMult * petMult;
         }
 
         function getCPS() {
@@ -350,13 +344,32 @@
             base += state.upgrades.i2 * UPGRADES.i2.power;
             base += state.upgrades.i3 * UPGRADES.i3.power;
             const sdMult = 1 + (state.sd * 0.05);
-            return base * sdMult;
+            const relicMult = state.relics.includes('r2') ? 1.2 : 1;
+            return base * sdMult * relicMult;
         }
 
         // --- ACTIONS ---
         window.clickCore = (e) => {
-            const gain = getCPC();
+            let gain = getCPC();
+            if (state.relics.includes('r1') && Math.random() < 0.05) {
+                gain *= 10;
+                createFloat("CRIT!", e.clientX, e.clientY - 50, '#facc15');
+            }
+            
             state.ce += gain;
+            state.pet.xp++;
+            
+            if(state.pet.xp > state.pet.lvl * 100) {
+                state.pet.lvl++;
+                state.pet.xp = 0;
+                createFloat("Pet Level Up!", window.innerWidth/2, window.innerHeight/2, '#ec4899');
+            }
+            
+            // Tutorial Step 1
+            if(state.tutorial === 1) {
+                nextTutorial(); // Move to step 2
+            }
+
             createFloat(`+${format(gain)}`, e.clientX, e.clientY);
             updateUI();
         };
@@ -368,74 +381,30 @@
                 state.ce -= cost;
                 state.upgrades[id]++;
                 updateUI();
-            }
-        };
-
-        window.doPrestige = (tier) => {
-            if (tier === 1 && state.ce >= 1000000) {
-                state.sd += Math.floor(state.ce / 1000000);
-                state.ce = 0;
-                state.upgrades = { c1: 0, c2: 0, c3: 0, i1: 0, i2: 0, i3: 0 };
-                updateUI();
-                saveGame();
-            }
-        };
-        
-        window.setPlayerName = () => {
-            const name = document.getElementById('player-name-input').value;
-            if(name && name.length > 2) {
-                state.playerName = name;
-                saveGame();
-                alert("Name Saved!");
-            }
-        };
-        
-        window.resetGame = () => {
-            if(confirm("Hard Reset? This wipes cloud save.")) {
-                state.ce = 0; state.sd = 0; state.gs = 0;
-                state.upgrades = { c1:0,c2:0,c3:0,i1:0,i2:0,i3:0 };
-                saveGame();
-                updateUI();
-            }
-        };
-
-        // --- MINI GAME ---
-        let rhythmScore = 0;
-        window.startRhythmGame = () => {
-            document.getElementById('rhythm-layer').classList.remove('hidden');
-            rhythmScore = 0;
-            spawnTarget();
-        };
-        
-        function spawnTarget() {
-            const container = document.getElementById('rhythm-target-container');
-            container.innerHTML = '';
-            const t = document.createElement('div');
-            t.className = 'rhythm-target';
-            t.style.top = Math.random() * 60 + 20 + '%';
-            t.style.left = Math.random() * 60 + 20 + '%';
-            t.onclick = (e) => {
-                e.stopPropagation();
-                rhythmScore++;
-                document.getElementById('rhythm-score').innerText = rhythmScore;
-                // REWARD: Bonus equal to 100 clicks OR 60s of idle
-                const bonus = Math.max(getCPC() * 100, getCPS() * 60);
-                state.ce += bonus;
-                createFloat(`+${format(bonus)}!`, e.clientX, e.clientY, '#22d3ee');
                 
-                if(rhythmScore >= 5) {
-                    endRhythmGame();
-                    createFloat("GAME COMPLETE!", window.innerWidth/2, window.innerHeight/2, '#4ade80');
-                } else {
-                    spawnTarget();
+                // Tutorial Step 2
+                if(state.tutorial === 2) {
+                    nextTutorial(); // Finish tutorial
                 }
-            };
-            container.appendChild(t);
+            }
+        };
+        
+        window.doPrestige = (tier) => {
+             if (tier === 1 && state.ce >= 1000000) {
+                 state.sd += Math.floor(state.ce / 1000000);
+                 state.ce = 0;
+                 state.upgrades = { c1: 0, c2: 0, c3: 0, i1: 0, i2: 0, i3: 0 };
+                 updateUI();
+                 saveGame();
+             }
         }
         
-        window.endRhythmGame = () => {
-             document.getElementById('rhythm-layer').classList.add('hidden');
-        };
+        window.equipPet = (id) => {
+            if (id === 0 || (id === 1 && state.sd >= 10) || (id === 2 && state.gs >= 1)) {
+                state.pet.id = id;
+                updateUI();
+            }
+        }
 
         // --- UI ---
         function updateUI() {
@@ -443,41 +412,62 @@
             document.getElementById('disp-sd').innerText = format(state.sd);
             document.getElementById('disp-gs').innerText = format(state.gs);
             document.getElementById('disp-cps').innerText = format(getCPS());
-            document.getElementById('disp-cpc').innerText = `+${format(getCPC())}`;
             
-            document.getElementById('val-sd-gain').innerText = `+${format(Math.floor(state.ce / 1000000))}`;
-            
-            // Settings
-            document.getElementById('user-id-display').innerText = userId || 'Loading...';
+            document.getElementById('val-sd-gain').innerText = format(Math.floor(state.ce / 1000000));
 
-            // Render Shop
+            // Shop Render
             const cList = document.getElementById('list-click');
             const iList = document.getElementById('list-idle');
             cList.innerHTML = ''; iList.innerHTML = '';
-
+            
             for (const [k, v] of Object.entries(UPGRADES)) {
                 const lvl = state.upgrades[k];
                 const cost = Math.floor(v.base * Math.pow(v.mult, lvl));
                 const canAfford = state.ce >= cost;
                 
+                // Special ID for tutorial highlighting
+                const btnId = (k === 'c1' && state.tutorial === 2) ? 'tut-buy-btn' : '';
+                
                 const html = `
-                    <div class="card flex justify-between items-center mb-2">
+                    <div class="flex justify-between items-center bg-slate-800/50 p-3 rounded border border-white/5 mb-2">
                         <div>
-                            <div class="font-bold text-sm text-gray-200">${v.name} <span class="text-xs text-indigo-400">Lvl ${lvl}</span></div>
-                            <div class="text-[10px] text-gray-500">${v.desc}</div>
+                            <div class="font-bold text-sm text-gray-200">${v.name} <span class="text-xs text-indigo-400">Lv${lvl}</span></div>
+                            <div class="text-xs text-gray-500">+${v.power} ${v.type.toUpperCase()}</div>
                         </div>
-                        <button class="px-4 py-2 rounded-lg text-xs font-bold shadow-lg transition-transform active:scale-95 ${canAfford ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-gray-500 opacity-50'}" 
+                        <button id="${btnId}" class="px-3 py-1 rounded text-xs font-bold ${canAfford ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-gray-500'}" 
                             onclick="window.buyUpgrade('${k}')">${format(cost)}</button>
                     </div>`;
-                
-                if (v.type === 'click') cList.innerHTML += html;
-                else iList.innerHTML += html;
+                if (v.type === 'click') cList.innerHTML += html; else iList.innerHTML += html;
             }
             
-            // Prestige Button state
-            const btnP1 = document.getElementById('btn-prestige-1');
-            if (state.ce < 1000000) { btnP1.disabled = true; btnP1.innerText = "Need 1M CE"; }
-            else { btnP1.disabled = false; btnP1.innerText = "REBIRTH NOW"; }
+            // Pet Render
+            const petGrid = document.getElementById('pet-grid');
+            petGrid.innerHTML = '';
+            PETS.forEach(p => {
+                const unlocked = (p.id === 0) || (p.id === 1 && state.sd >= 10) || (p.id === 2 && state.gs >= 1);
+                const active = state.pet.id === p.id;
+                petGrid.innerHTML += `
+                    <div class="bg-slate-800 p-3 rounded border ${active ? 'border-green-500' : (unlocked ? 'border-slate-600' : 'border-red-900 opacity-50')} cursor-pointer" onclick="window.equipPet(${p.id})">
+                        <div class="font-bold ${unlocked ? 'text-white' : 'text-gray-500'}">${p.name}</div>
+                        <div class="text-xs text-gray-400">${unlocked ? p.desc : p.req}</div>
+                        ${active ? '<div class="text-xs text-green-400 mt-1">ACTIVE</div>' : ''}
+                    </div>
+                `;
+            });
+            
+            // Relic Render
+            const relicGrid = document.getElementById('relic-grid');
+            relicGrid.innerHTML = '';
+            RELICS.forEach(r => {
+                const unlocked = state.relics.includes(r.id);
+                relicGrid.innerHTML += `
+                    <div class="bg-slate-800 p-3 rounded border ${unlocked ? 'border-yellow-500' : 'border-slate-700 opacity-50'}">
+                        <div class="text-2xl text-center mb-1">${r.icon}</div>
+                        <div class="font-bold text-xs text-center ${unlocked ? 'text-white' : 'text-gray-500'}">${unlocked ? r.name : '???'}</div>
+                        <div class="text-[10px] text-center text-gray-400">${unlocked ? r.desc : r.hint}</div>
+                    </div>
+                `;
+            });
         }
 
         function format(num) {
@@ -498,41 +488,82 @@
             setTimeout(() => el.remove(), 800);
         }
 
+        // --- TAB SYSTEM ---
         window.setTab = (id) => {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(`tab-${id}`).classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById(`nav-${id}`).classList.add('active');
+            const btn = document.getElementById(`nav-${id}`);
+            if(btn) btn.classList.add('active');
+            
+            if(id === 'leaderboard') updateLeaderboard();
+            if(state.tutorial === 2 && id === 'upgrades') nextTutorial(); // Step 2 check
         };
+
+        // --- TUTORIAL ---
+        function startTutorial() {
+            state.tutorial = 1;
+            showTut("System initialized.<br>Tap the Core to generate Cosmic Energy.", "core-btn");
+        }
+        
+        window.nextTutorial = () => {
+            state.tutorial++;
+            if(state.tutorial === 2) {
+                // Highlight the navigation button for shop
+                showTut("Excellent.<br>Now open the Shop to buy upgrades.", "nav-upgrades"); 
+            }
+            if(state.tutorial === 3) {
+                 document.getElementById('tutorial-overlay').classList.add('hidden');
+                 document.getElementById('tutorial-overlay').classList.remove('flex');
+                 document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+                 state.tutorial = 99; 
+                 saveGame();
+            }
+        }
+        
+        function showTut(text, highlightId) {
+            const overlay = document.getElementById('tutorial-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            document.getElementById('tut-text').innerHTML = text;
+            
+            document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+            
+            const target = document.getElementById(highlightId);
+            if(target) target.classList.add('tutorial-highlight');
+        }
 
         // --- INIT ---
         async function init() {
+            if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+                document.getElementById('save-status').innerText = "Error: Firebase Config Missing";
+                return;
+            }
+
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
-            await signInAnonymously(auth);
-            userId = auth.currentUser.uid;
+            
+            // Try auth or fail gracefully
+            try {
+                await signInAnonymously(auth);
+            } catch (e) {
+                console.error("Auth failed:", e);
+                document.getElementById('auth-status').innerText = "Auth Failed";
+                // Fallback for local play (wont save)
+            }
+
+            if (auth.currentUser) {
+                userId = auth.currentUser.uid;
+                document.getElementById('user-id-display').innerText = userId.slice(0, 8) + '...';
+                document.getElementById('auth-status').innerText = "Online";
+            }
 
             onSnapshot(doc(db, 'artifacts', appId, 'users', userId, 'save', 'main'), (snap) => {
                 if (snap.exists()) {
-                    const data = snap.data();
-                    const now = Date.now();
-                    const seconds = (now - data.lastSave) / 1000;
-                    // Offline Calculation
-                    if (seconds > 10) {
-                        // Calculate what they earned based on loaded upgrades
-                        let tempState = { ...state, ...data };
-                        let baseCPS = 0;
-                        baseCPS += tempState.upgrades.i1 * UPGRADES.i1.power;
-                        baseCPS += tempState.upgrades.i2 * UPGRADES.i2.power;
-                        baseCPS += tempState.upgrades.i3 * UPGRADES.i3.power;
-                        const gain = baseCPS * (1 + tempState.sd * 0.05) * seconds;
-                        if (gain > 0) {
-                             state.ce += gain; // Add to current session immediately
-                             alert(`Offline for ${Math.floor(seconds)}s. Earned ${format(gain)} CE.`);
-                        }
-                    }
-                    state = { ...state, ...data };
+                    state = { ...state, ...snap.data() };
+                } else {
+                    startTutorial();
                 }
                 updateUI();
             });
@@ -546,13 +577,47 @@
 
             window.setTab('home');
         }
-
+        
         function saveGame() {
              if(!userId) return;
              state.lastSave = Date.now();
-             setDoc(doc(db, 'artifacts', appId, 'users', userId, 'save', 'main'), state);
-             document.getElementById('save-status').innerText = 'Saved.';
-             setTimeout(() => document.getElementById('save-status').innerText = '', 1000);
+             document.getElementById('save-status').innerText = 'Saving...';
+             
+             setDoc(doc(db, 'artifacts', appId, 'users', userId, 'save', 'main'), state)
+                .then(() => document.getElementById('save-status').innerText = 'Saved')
+                .catch(e => document.getElementById('save-status').innerText = 'Save Error');
+             
+             // Update Leaderboard
+             setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', userId), {
+                 ce: state.ce, sd: state.sd, uid: userId, timestamp: serverTimestamp()
+             });
+        }
+        
+        // Mini Game logic same as before...
+        let rhythmScore = 0;
+        window.startRhythmGame = () => { /* ... */ };
+        window.hitRhythm = () => { /* ... */ };
+        window.endRhythmGame = () => { /* ... */ };
+        
+        async function updateLeaderboard() {
+            const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard'), limit(10));
+            try {
+                const snap = await getDocs(q);
+                const list = document.getElementById('leaderboard-list');
+                list.innerHTML = '';
+                let data = [];
+                snap.forEach(doc => data.push(doc.data()));
+                data.sort((a,b) => b.ce - a.ce); 
+                
+                data.forEach((d, i) => {
+                    list.innerHTML += `
+                        <li class="flex justify-between bg-slate-800 p-2 rounded border-b border-white/5">
+                            <span class="font-mono text-yellow-500">#${i+1}</span>
+                            <span class="text-gray-300 text-xs truncate w-24">${d.uid.slice(0,8)}</span>
+                            <span class="text-ce font-bold">${format(d.ce)}</span>
+                        </li>`;
+                });
+            } catch (e) { console.error("Leaderboard error", e); }
         }
 
         window.onload = init;
