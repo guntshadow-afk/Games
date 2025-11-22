@@ -1,6 +1,6 @@
 // Service Worker for Caching - Required for PWA install prompt
 
-const CACHE_NAME = 'cosmic-gem-clicker-v5'; // Incrementing cache version to force update
+const CACHE_NAME = 'cosmic-gem-clicker-v7-full'; // New cache version for forced update
 // List essential files to cache for offline use
 const urlsToCache = [
     '/',
