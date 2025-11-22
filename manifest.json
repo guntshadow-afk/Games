@@ -1,18 +1,18 @@
 {
-"name": "Celestial Gem Miner",
-"short_name": "Gem Miner",
+"name": "Cosmic Universal Idle: Full",
+"short_name": "Cosmic Idle",
 "start_url": "./",
 "display": "standalone",
-"background_color": "#0A101C",
-"theme_color": "#FF8C00",
+"background_color": "#121825",
+"theme_color": "#B388FF",
 "icons": [
 {
-"src": "https://www.google.com/search?q=https://placehold.co/192x192/0A101C/FFD700%3Ftext%3D💎",
+"src": "https://www.google.com/search?q=https://placehold.co/192x192/1A202C/FF6F91%3Ftext%3D✨",
 "sizes": "192x192",
 "type": "image/png"
 },
 {
-"src": "https://www.google.com/search?q=https://placehold.co/512x512/0A101C/FFD700%3Ftext%3D💎",
+"src": "https://www.google.com/search?q=https://placehold.co/512x512/1A202C/FF6F91%3Ftext%3D✨",
 "sizes": "512x512",
 "type": "image/png"
 }
