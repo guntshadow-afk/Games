@@ -3,865 +3,523 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Celestial Miner RPG (Robust Save & Tutorial)</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- PWA CONFIGURATION: REQUIRED FOR INSTALL BUTTON ON MOBILE -->
-    <!-- CRITICAL: Links the manifest file. -->
-    <link rel="manifest" href="manifest.json">
+    <title>Cosmic Gem Clicker</title>
+    <!-- Essential PWA Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/0D1117/58A6FF?text=CM">
-    <!-- END PWA CONFIGURATION -->
-
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700;900&display=swap');
-        
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #010409; /* Deep space background */
-            color: #c9d1d9; 
+            background-color: #0D1117; /* Dark background */
+            color: #E6E8EA; /* Light text */
             min-height: 100vh;
-        }
-        .game-container {
-            background-color: #0d1117; /* Main console panel */
-            border: 2px solid #21262d;
-            box-shadow: 0 0 40px rgba(88, 166, 255, 0.15); /* Light blue glow */
-        }
-        .header-title {
-            font-family: 'Orbitron', sans-serif;
-            text-shadow: 0 0 10px rgba(88, 166, 255, 0.7);
-        }
-        .stat-card {
-            background-color: #161b22;
-            border-left: 4px solid;
-            transition: all 0.3s;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-        }
-        /* Custom Gradients for Buttons */
-        .gold-mine-button {
-            background: linear-gradient(90deg, #FFC107, #FF9800);
-            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
-        }
-        .aetherium-mine-btn {
-            background: linear-gradient(90deg, #A020F0, #8A2BE2);
-            box-shadow: 0 4px 15px rgba(160, 32, 240, 0.4);
-        }
-        .mine-button:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-        .mine-button:active {
-            transform: scale(0.98);
-        }
-
-        /* Tab Styles */
-        .tab-btn {
-            @apply py-3 px-4 flex-grow md:flex-grow-0 rounded-t-xl transition duration-200 text-gray-400 font-semibold border-b-2 border-transparent;
-        }
-        .tab-btn.active {
-            @apply bg-[#161b22] text-[#58a6ff] border-b-2 border-[#58a6ff];
-            box-shadow: 0 -4px 10px rgba(88, 166, 255, 0.1);
-        }
-        .tab-content {
-            background-color: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 0 0 1rem 1rem;
-        }
-
-        /* Shop Item Styles */
-        .shop-item {
-            background-color: #21262d;
-            border: 1px solid #30363d;
-            transition: all 0.2s;
-            transform: perspective(1px) translateZ(0); /* Hardware acceleration */
-        }
-        .shop-item:hover {
-            background-color: #2c323c;
-            border-color: #58a6ff;
-            transform: scale(1.01) translateY(-1px);
-        }
-        .shop-buy-btn {
-            @apply font-bold py-2 px-4 rounded-lg transition duration-200 shadow-md;
-        }
-        .shop-buy-btn:disabled {
-            @apply bg-gray-700 text-gray-400 cursor-not-allowed shadow-none;
-        }
-        .gold-btn {
-            @apply bg-yellow-600 hover:bg-yellow-500 text-black;
-        }
-        .aetherium-btn {
-            @apply bg-purple-600 hover:bg-purple-500 text-white;
-        }
-
-        /* Tutorial Modal Styles */
-        #tutorial-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 100;
-            backdrop-filter: blur(5px);
-            display: none; /* Controlled by JS */
+            display: flex;
             justify-content: center;
             align-items: center;
         }
-        .tutorial-card {
-            background-color: #0d1117;
-            border: 3px solid #58a6ff;
-            box-shadow: 0 0 50px rgba(88, 166, 255, 0.5);
-            max-width: 90%;
-            max-height: 90%;
-            animation: fadeIn 0.5s ease-out;
+        .game-container {
+            max-width: 1200px;
+            width: 95%;
+            padding: 1rem;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .dark-card {
+            background-color: #161B22; /* Slightly lighter dark background for cards */
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
-        .highlight {
-            border: 4px dashed #FFD700;
-            box-shadow: 0 0 20px #FFD700;
-            transition: all 0.5s ease;
+        .accent-button {
+            background-color: #58a6ff;
+            color: #0D1117;
+            font-weight: 700;
+            transition: all 0.1s;
+        }
+        .accent-button:hover {
+            background-color: #79c0ff;
+        }
+        .upgrade-card {
+            background-color: #380d0d; /* Dark red for upgrades */
+            transition: transform 0.1s;
+        }
+        .upgrade-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5);
+        }
+        .prestige-button {
+            background-color: #6a5acd; /* Crystal/Prestige color */
+            color: white;
+            transition: all 0.1s;
+        }
+        .prestige-button:hover:not(:disabled) {
+            background-color: #8378d3;
+        }
+        .source-circle {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #ff8c00 0%, #ff4500 100%);
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.7);
+            transition: transform 0.1s, box-shadow 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .source-circle:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 10px rgba(255, 69, 0, 0.9);
+        }
+        .gem-icon {
+            font-size: 3rem;
+            color: #58a6ff;
+            text-shadow: 0 0 10px rgba(88, 166, 255, 0.8);
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4">
 
-    <!-- TUTORIAL MODAL -->
-    <div id="tutorial-modal" class="hidden">
-        <div class="tutorial-card p-6 md:p-10 rounded-xl text-center relative">
-            <h2 id="tutorial-title" class="text-3xl md:text-4xl font-black header-title text-[#00FFFF] mb-4"></h2>
-            <p id="tutorial-text" class="text-lg text-gray-300 mb-8 max-w-xl mx-auto"></p>
-            <div id="tutorial-buttons" class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-6">
-                <button onclick="skipTutorial()" class="bg-red-700 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg transition duration-200">
-                    SKIP TUTORIAL
-                </button>
-                <button id="tutorial-next-btn" onclick="nextTutorialStep()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg transition duration-200">
-                    NEXT (1/5)
-                </button>
-            </div>
-        </div>
-    </div>
-    <!-- END TUTORIAL MODAL -->
-
-
-    <div id="game-container" class="game-container max-w-6xl mx-auto rounded-xl p-4 md:p-8">
-        
-        <!-- Header -->
-        <header class="text-center mb-6">
-            <h1 class="text-4xl md:text-6xl font-black header-title text-[#58a6ff] mb-2 tracking-wider">CELESTIAL MINER</h1>
-            <p class="text-sm text-gray-500">Resource Management Protocol v2.3</p>
-        </header>
-
-        <!-- Stats Panel -->
-        <div id="stats-panel" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-            
-            <div class="stat-card border-blue-500 p-3 rounded-lg col-span-2 sm:col-span-1">
-                <p class="text-xs font-semibold text-gray-400">Pilot Name</p>
-                <p id="player-name-display" class="text-2xl md:text-3xl font-bold text-blue-300 mt-1 truncate">Pilot</p>
-            </div>
-
-            <div class="stat-card border-yellow-500 p-3 rounded-lg">
-                <p class="text-xs font-semibold text-gray-400">Gold</p>
-                <p id="gold-display" class="text-2xl md:text-3xl font-bold text-yellow-300 mt-1">0 💰</p>
-            </div>
-            
-            <div class="stat-card border-purple-500 p-3 rounded-lg">
-                <p class="text-xs font-semibold text-gray-400">Aetherium</p>
-                <p id="aetherium-display" class="text-2xl md:text-3xl font-bold text-purple-400 mt-1">0 ⚛️</p>
-            </div>
-
-            <div class="stat-card border-cyan-500 p-3 rounded-lg hidden sm:block">
-                <p class="text-xs font-semibold text-gray-400">Prestige Points</p>
-                <p id="pp-display" class="text-2xl md:text-3xl font-bold text-cyan-400 mt-1">0 ⭐</p>
-            </div>
-        </div>
-
-        <!-- Tab Controls -->
-        <div id="tab-controls" class="flex flex-wrap border-b border-[#21262d] mb-0 rounded-t-xl overflow-hidden bg-[#0d1117] shadow-inner">
-            <button class="tab-btn active" data-tab="mine" onclick="switchTab('mine')">
-                ⛏️ MINE
-            </button>
-            <button class="tab-btn" data-tab="shop" onclick="switchTab('shop')">
-                🛒 UPGRADE SHOP
-            </button>
-            <button class="tab-btn" data-tab="prestige" onclick="switchTab('prestige')">
-                ✨ PRESTIGE
-            </button>
-            <button class="tab-btn" data-tab="daily" onclick="switchTab('daily')">
-                🎁 DAILY
-            </button>
-            <button class="tab-btn" data-tab="combat" onclick="switchTab('combat')">
-                💥 COMBAT
-            </button>
-            <button class="tab-btn" data-tab="leaderboard" onclick="switchTab('leaderboard')">
-                🏆 LEADERBOARD
-            </button>
-            <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
-                ⚙️ SETTINGS
-            </button>
-        </div>
-
-        <!-- Tab Content Containers -->
-        <div class="tab-content p-4 md:p-6">
-            
-            <!-- 1. MINE TAB (Two-Column Layout) -->
-            <div id="tab-mine" class="tab-pane lg:grid grid-cols-1 lg:grid-cols-2 lg:gap-8">
-                
-                <!-- Left Column: Gold Mining -->
-                <div class="mb-8 lg:mb-0 bg-[#21262d] p-6 rounded-xl border border-yellow-600/30">
-                    <h2 class="text-2xl font-bold mb-4 text-center text-yellow-300">Basic Ore Mining (Tier 1)</h2>
-                    <div class="flex flex-col items-center">
-                        <div class="text-9xl mb-6 hover:scale-105 transition-transform duration-300 cursor-pointer text-yellow-500">
-                            ⛏️
-                        </div>
-                        <button id="mine-gold-btn" onclick="mineGold()" class="mine-button gold-mine-button w-full max-w-md font-black py-4 px-6 rounded-xl text-black">
-                            MINE (+<span id="gold-per-click">1</span> Gold)
-                        </button>
-                        <p class="text-gray-400 mt-4 text-sm">Automated Rate: +<span id="auto-rate">0</span> Gold/s</p>
-                    </div>
-                </div>
-
-                <!-- Right Column: Aetherium Mining (Dynamically displayed) -->
-                <div id="aetherium-mine-area" class="lg:mt-0 bg-[#21262d] p-6 rounded-xl border border-purple-600/30 hidden">
-                    <h2 class="text-2xl font-bold mb-4 text-center text-purple-300">Aetherium Crystal Cluster (Tier 2)</h2>
-                    <div class="flex flex-col items-center">
-                        <div class="text-9xl mb-6 hover:scale-105 transition-transform duration-300 cursor-pointer text-purple-500">
-                            ⚛️
-                        </div>
-                        <button id="mine-aetherium-btn" onclick="mineAetherium()" class="mine-button aetherium-mine-btn w-full max-w-md font-black py-4 px-6 rounded-xl text-white">
-                            MINE AETHERIUM (+1 ⚛️)
-                        </button>
-                        <p class="text-gray-400 mt-4 text-sm">Requires Aetherium Access upgrade from the Shop.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. SHOP TAB (Two-Column Layout) -->
-            <div id="tab-shop" class="tab-pane hidden lg:grid grid-cols-1 lg:grid-cols-2 lg:gap-8">
-                
-                <!-- Left Column: Gold Upgrades -->
-                <div>
-                    <h2 class="text-2xl font-bold mb-4 text-yellow-300 border-b border-gray-700 pb-2">Gold System Upgrades</h2>
-                    <div id="shop-list-gold" class="space-y-4">
-                        <!-- Gold-based shop items are generated here -->
-                    </div>
-                </div>
-                
-                <!-- Right Column: Aetherium Upgrades -->
-                <div>
-                    <h2 class="text-2xl font-bold mb-4 text-purple-300 border-b border-gray-700 pb-2">Aetherium System Upgrades</h2>
-                    <div id="shop-list-aetherium" class="space-y-4">
-                        <!-- Aetherium-based shop items are generated here -->
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 3. PRESTIGE TAB -->
-            <div id="tab-prestige" class="tab-pane hidden">
-                <h2 class="text-2xl font-bold mb-4 text-cyan-400">Ascension Protocol</h2>
-                <p class="text-gray-400 mb-6">Reset your Gold and most Upgrades to gain permanent **Prestige Points (PP)**, which boost your base Gold multiplier for the next run.</p>
-                
-                <div class="bg-[#21262d] p-6 rounded-xl border-2 border-cyan-500/50 mb-6 shadow-xl">
-                    <p class="text-lg font-semibold text-cyan-400">Current PP Multiplier: <span id="pp-bonus">x1.00</span></p>
-                    <p class="text-gray-300">Total Gold Earned Since Last Prestige: <span id="lifetime-gold">0</span> 💰</p>
-                    <p class="text-gray-300">Gold Required for Next PP: <span id="next-pp-req">1,000</span> 💰</p>
-                    <p class="text-gray-300 text-xl mt-3">PP Gained on Reset: <span id="pp-gained" class="text-cyan-300 font-extrabold">0</span> ⭐</p>
-                </div>
-
-                <button id="prestige-btn" onclick="performPrestige()" disabled class="w-full bg-blue-700 hover:bg-blue-600 disabled:bg-gray-600 disabled:text-gray-400 text-white font-bold py-4 rounded-xl text-lg transition duration-200">
-                    PRESTIGE NOW (Reset Progress)
-                </button>
-                <p id="prestige-message" class="mt-3 text-sm text-yellow-400 hidden text-center">You must reach the required Gold threshold to prestige!</p>
-            </div>
-
-            <!-- 4. DAILY REWARD TAB -->
-            <div id="tab-daily" class="tab-pane hidden">
-                <h2 class="text-2xl font-bold mb-4 text-green-400">Daily Login Bonus</h2>
-                <div class="bg-[#21262d] p-6 rounded-xl border-2 border-green-500/50 text-center shadow-xl">
-                    <div id="daily-claim-status" class="mb-4">
-                        <p class="text-2xl font-bold text-yellow-300">Reward Available!</p>
-                        <p class="text-gray-400">Claim 100 Gold and 1 Prestige Point.</p>
-                    </div>
-                    <button id="daily-claim-btn" onclick="claimDailyReward()" class="w-full max-w-sm bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg transition duration-200">
-                        CLAIM REWARD
-                    </button>
-                    <p id="daily-cooldown-text" class="mt-3 text-sm text-gray-500">Next claim available in: --</p>
-                </div>
-            </div>
-
-            <!-- 5. COMBAT TAB -->
-            <div id="tab-combat" class="tab-pane hidden relative">
-                <div id="combat-lock-overlay" class="absolute inset-0 bg-black/80 flex flex-col justify-center items-center rounded-lg z-10 hidden">
-                    <span class="text-5xl mb-4 text-red-500">🔒</span>
-                    <p class="text-xl text-red-500 font-bold">COMBAT LICENSE REQUIRED</p>
-                    <p class="text-gray-400 mt-2">Purchase the license in the Shop tab.</p>
-                </div>
-
-                <h2 class="text-2xl font-bold mb-4 text-red-400">Interstellar Conflict</h2>
-                <div id="combat-content">
-                    <p class="text-gray-400 mb-6">Defeat enemies using your powerful Aetherium Blade!</p>
-                    
-                    <div id="void-beast-container" class="bg-gray-800 p-6 rounded-xl border-2 border-red-700/50 relative">
-                        <div id="combat-item-lock" class="absolute inset-0 bg-black/80 flex flex-col justify-center items-center rounded-lg z-10 hidden">
-                             <span class="text-5xl mb-2 text-red-500">⚔️</span>
-                            <span class="text-2xl text-red-500 font-bold">REQUIRES AETHERIUM BLADE</span>
-                        </div>
-                        <p class="text-xl font-bold text-red-300">Enemy: Void Beast</p>
-                        <p class="text-gray-400">Reward: 100 Gold + 5 Aetherium</p>
-                        <button class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 mt-4 rounded-lg shadow-lg" onclick="startCombat('void_beast')">
-                            CHALLENGE
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 6. LEADERBOARD TAB -->
-            <div id="tab-leaderboard" class="tab-pane hidden">
-                <h2 class="text-2xl font-bold mb-4 text-[#00FFFF]">Galactic Ranks (Top Prestige)</h2>
-                <p class="text-gray-400 mb-4">Ranking based on total Prestige Points (PP).</p>
-                <div class="bg-[#21262d] p-6 rounded-xl">
-                    <div id="leaderboard-table" class="space-y-2">
-                        <!-- Leaderboard data populated here -->
-                        <p class="text-center text-gray-500" id="leaderboard-loading">Loading rankings...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 7. SETTINGS TAB -->
-            <div id="tab-settings" class="tab-pane hidden">
-                <h2 class="text-2xl font-bold mb-4 text-gray-300">Game Configuration & Status</h2>
-                
-                <div class="bg-[#21262d] p-6 rounded-xl border border-gray-600 space-y-6">
-                    
-                    <!-- Player Name Input -->
-                    <div class="border-b border-gray-700 pb-4">
-                        <p class="text-lg font-semibold text-blue-400 mb-2">Set Pilot Name</p>
-                        <input type="text" id="player-name-input" placeholder="Enter your celestial name" maxlength="20"
-                               class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button onclick="setPlayerName()" id="save-name-btn"
-                                class="mt-3 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg transition duration-200">
-                            Save Name
-                        </button>
-                        <p class="text-xs text-gray-500 mt-2">This name will appear on the Leaderboard.</p>
-                    </div>
-
-                    <!-- User ID Display -->
-                    <div class="border-b border-gray-700 pb-4">
-                        <p class="text-lg font-semibold text-gray-400">Current Player ID (Technical)</p>
-                        <p id="user-id-display" class="font-mono text-sm md:text-base text-yellow-300 mt-1 break-all p-2 bg-gray-800 rounded-lg">Loading...</p>
-                        <p class="text-xs text-gray-500 mt-1">This ID is used to save your progress to the cloud and identify you on the leaderboard.</p>
-                    </div>
-
-                    <!-- Message Display -->
-                    <div>
-                        <p class="text-lg font-semibold text-gray-400">System Message Log</p>
-                        <p id="message-display" class="text-sm font-medium text-green-400 mt-1 p-2 bg-gray-800 rounded-lg">Initializing...</p>
-                    </div>
-                </div>
-            </div>
-
-        </div> <!-- End Tab Content -->
-
-    </div>
-
+    <!-- Firebase SDKs -->
     <script type="module">
-        // --- FIREBASE IMPORTS ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query, limit, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // --- CONFIGURATION ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+
+        // IMPORTANT: Set debug level for firestore
+        setLogLevel('Debug');
+
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'cosmic-gem-clicker-default';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        
-        let db, auth, userId = null;
-        const STATE_COLLECTION = "miner_rpg_state";
-        const LEADERBOARD_COLLECTION = "leaderboard_stats"; // Public path collection
-        
-        // --- GAME DEFINITIONS ---
-        const UPGRADES = {
-            'click_power_1': { type: 'gold', name: 'Hand Enhancer (Click)', description: '+1 Base Click Gold', baseCost: 10, effect: 1, icon: '💪', costFormula: (c) => 10 * Math.pow(1.15, c) },
-            'click_power_2': { type: 'gold', name: 'Sonic Impulse (Click)', description: '+10 Base Click Gold', baseCost: 100, effect: 10, icon: '📢', costFormula: (c) => 100 * Math.pow(1.5, c) },
-            'auto_miner_1': { type: 'gold', name: 'Drone Miner (Auto)', description: '+1 Gold/second', baseCost: 50, effect: 1, icon: '🛰️', costFormula: (c) => 50 * Math.pow(1.2, c) },
-            'auto_miner_2': { type: 'gold', name: 'AI Fleet (Auto)', description: '+10 Gold/second', baseCost: 500, effect: 10, icon: '🤖', costFormula: (c) => 500 * Math.pow(1.8, c) },
-            'aetherium_unlock': { type: 'gold', name: 'Aetherium Access (Feature)', description: 'Unlocks Aetherium Mining', baseCost: 5000, effect: 0, icon: '🔮', costFormula: (c) => c > 0 ? Infinity : 5000 },
-            'combat_access': { type: 'gold', name: 'Combat License (Feature)', description: 'Unlocks Combat Tab', baseCost: 500, effect: 0, icon: '💥', costFormula: (c) => c > 0 ? Infinity : 500 },
-            'aetherium_blade': { type: 'aetherium', name: 'Aetherium Blade (Combat)', description: 'Required for Bosses (One-time)', baseCost: 50, effect: 0, icon: '⚔️', costFormula: (c) => c > 0 ? Infinity : 50 },
-            'aetherium_suit': { type: 'aetherium', name: 'Aetherium Suit (Defense)', description: 'Doubles Auto Mining Rate', baseCost: 100, effect: 2, icon: '🛡️', costFormula: (c) => c > 0 ? Infinity : 100 }
-        };
 
-        const PRESTIGE_BASE_REQ = 1000;
-        const PP_MULTIPLIER_BONUS = 0.05; // Each PP adds 5% to the base multiplier
-        const SAVE_INTERVAL_SECONDS = 5; 
+        let app, db, auth;
+        let userId = 'loading';
+        let isAuthReady = false;
+        let unsubscribeGameState = null;
 
-        // --- GAME STATE (Local Mirror) ---
+        // Game State Management
         let gameState = {
-            playerName: 'Pilot',
-            gold: 0,
-            aetherium: 0,
-            prestigePoints: 0,
-            miningMultiplier: 1,
-            autoRate: 0,
-            upgrades: {
-                click_power_1: 0, click_power_2: 0, auto_miner_1: 0, auto_miner_2: 0,
-                aetherium_unlock: 0, combat_access: 0, aetherium_blade: 0, aetherium_suit: 0
-            },
-            lifetimeGold: 0,
-            currentTab: 'mine',
-            lastDailyClaim: 0,
-            isTutorialComplete: false, 
+            gems: 0,
+            crystals: 0,
+            clickPower: 1.0,
+            minerLevel: 0,
+            autoClickerLevel: 0,
+            prestigeCount: 0,
+            tutorialComplete: true,
+            currentTab: 'gems' // To handle the two tabs
+        };
+
+        const PRESTIGE_THRESHOLD = 50000; // Gems required to unlock first crystal
+
+        const GEM_COSTS = {
+            click: (level) => Math.floor(10 * Math.pow(1.5, level)),
+            miner: (level) => Math.floor(50 * Math.pow(2, level)),
+            autoclicker: (level) => Math.floor(1000 * Math.pow(3, level)),
         };
         
-        let tutorialStep = 0;
-        const TUTORIAL_STEPS = [
-            { title: "WELCOME, PILOT", text: "Welcome to the Celestial Miner. Your mission: Extract Gold and Aetherium to become the wealthiest entity in the galaxy.", highlightId: null },
-            { title: "STEP 1: MINE ORE", text: "Your current task is to mine Basic Ore. Click the large ⛏️ button to earn Gold. Every click is multiplied by your power!", highlightId: 'mine-gold-btn' },
-            { title: "STEP 2: CHECK STATS", text: "Observe the Statistics panel. This tracks your Gold, Aetherium, and Prestige Points (PP).", highlightId: 'stats-panel' },
-            { title: "STEP 3: UPGRADE SHOP", text: "Switch to the 🛒 UPGRADE SHOP tab. This is where you spend Gold to increase your mining capacity (click power and automation rate).", highlightId: 'tab-controls', tabToSwitch: 'shop' },
-            { title: "MISSION COMPLETE", text: "The core loop is: Mine -> Upgrade -> Prestige. You are now cleared for galactic deployment! Happy mining.", highlightId: null },
-        ];
+        // --- Tab Management ---
+        function switchTab(tabName) {
+            gameState.currentTab = tabName;
+            updateUI();
+        }
 
-
-        // --- DOM ELEMENTS CACHE ---
-        const elements = {};
-        const cacheElements = () => {
-            // ... (All existing element caching code remains here) ...
-            elements.playerNameDisplay = document.getElementById('player-name-display');
-            elements.goldDisplay = document.getElementById('gold-display');
-            elements.aetheriumDisplay = document.getElementById('aetherium-display');
-            elements.ppDisplay = document.getElementById('pp-display');
-            elements.rateDisplay = document.getElementById('rate-display');
+        function getGemsPerSecond() {
+            // Miner income: 0.1 G/sec per level
+            let minerRate = gameState.minerLevel * 0.1;
+            // Auto-Clicker income: 1 click/sec per level * clickPower
+            let autoclickerRate = gameState.autoClickerLevel * gameState.clickPower * 1;
             
-            elements.userIdDisplay = document.getElementById('user-id-display');
-            elements.messageDisplay = document.getElementById('message-display');
-            elements.playerNameInput = document.getElementById('player-name-input');
-            
-            elements.tutorialModal = document.getElementById('tutorial-modal');
-            elements.tutorialTitle = document.getElementById('tutorial-title');
-            elements.tutorialText = document.getElementById('tutorial-text');
-            elements.tutorialNextBtn = document.getElementById('tutorial-next-btn');
-            elements.gameContainer = document.getElementById('game-container');
-            
-            elements.shopListGold = document.getElementById('shop-list-gold');
-            elements.shopListAetherium = document.getElementById('shop-list-aetherium');
-            elements.goldPerClick = document.getElementById('gold-per-click');
-            elements.autoRate = document.getElementById('auto-rate');
-            elements.aetheriumMineArea = document.getElementById('aetherium-mine-area');
-            elements.mineAetheriumBtn = document.getElementById('mine-aetherium-btn');
+            // Apply prestige bonus: +1% income per crystal
+            const prestigeMultiplier = 1 + (gameState.crystals * 0.01);
 
-            elements.dailyClaimBtn = document.getElementById('daily-claim-btn');
-            elements.dailyClaimStatus = document.getElementById('daily-claim-status');
-            elements.dailyCooldownText = document.getElementById('daily-cooldown-text');
-            
-            elements.prestigeBtn = document.getElementById('prestige-btn');
-            elements.ppBonus = document.getElementById('pp-bonus');
-            elements.lifetimeGold = document.getElementById('lifetime-gold');
-            elements.nextPPReq = document.getElementById('next-pp-req');
-            elements.ppGained = document.getElementById('pp-gained');
-            elements.prestigeMessage = document.getElementById('prestige-message');
-            
-            elements.combatLockOverlay = document.getElementById('combat-lock-overlay');
-            elements.combatItemLock = document.getElementById('combat-item-lock');
-            elements.leaderboardTable = document.getElementById('leaderboard-table');
+            return (minerRate + autoclickerRate) * prestigeMultiplier;
+        }
 
-            elements.mineGoldBtn = document.getElementById('mine-gold-btn');
-            elements.statsPanel = document.getElementById('stats-panel');
-            elements.tabControl = document.getElementById('tab-controls');
-        };
+        function getCrystalsPerSecond() {
+            // Crystals are only generated on Prestige for this version
+            return 0;
+        }
+        
+        function calculateCrystalsOnPrestige() {
+            // Formula: 1 Crystal for every 50,000 Gems earned in this run, after the first 50,000.
+            if (gameState.gems < PRESTIGE_THRESHOLD) return 0;
+            return Math.floor((gameState.gems - PRESTIGE_THRESHOLD) / 50000) + 1;
+        }
 
-        // --- UTILITY FUNCTIONS ---
+        // UI Update Functions
+        const $ = id => document.getElementById(id);
 
-        const formatNumber = (num) => {
-            return Math.floor(num).toLocaleString('en-US', { maximumFractionDigits: 0 });
-        };
+        function updateUI() {
+            // Resources
+            const gps = getGemsPerSecond();
+            $('gems-amount').textContent = gameState.gems.toFixed(2);
+            $('gems-rate').textContent = `Rate: ${gps.toFixed(2)} G/sec (x${(1 + (gameState.crystals * 0.01)).toFixed(2)} Multiplier)`;
+            $('crystals-amount').textContent = gameState.crystals.toFixed(0);
+            $('crystals-rate').textContent = `Total Prestige: ${gameState.prestigeCount}`;
 
-        const displayMessage = (msg, isError = false) => {
-            elements.messageDisplay.textContent = msg;
-            elements.messageDisplay.className = `text-sm font-medium p-2 bg-gray-800 rounded-lg ${isError ? 'text-red-400' : 'text-green-400'}`;
-            setTimeout(() => {
-                elements.messageDisplay.textContent = "Ready.";
-                elements.messageDisplay.className = 'text-sm font-medium text-green-400 p-2 bg-gray-800 rounded-lg';
-            }, 3000);
-        };
+            // --- Gem Upgrades Tab ---
+            if (gameState.currentTab === 'gems') {
+                $('upgrades-gems').classList.remove('hidden');
+                $('upgrades-prestige').classList.add('hidden');
+                $('tab-gems').classList.add('accent-button');
+                $('tab-gems').classList.remove('bg-[#161B22]', 'text-gray-400');
+                $('tab-prestige').classList.remove('accent-button');
+                $('tab-prestige').classList.add('bg-[#161B22]', 'text-gray-400');
 
-        const getUserDocRef = (uid) => {
-            return doc(db, 'artifacts', appId, 'users', uid, STATE_COLLECTION, 'save');
-        };
+                // Click Source
+                $('click-power').textContent = gameState.clickPower.toFixed(2);
 
-        const getLeaderboardDocRef = (uid) => {
-            return doc(db, 'artifacts', appId, 'public', 'data', LEADERBOARD_COLLECTION, uid);
-        };
+                // Click Upgrades
+                const nextClickCost = GEM_COSTS.click(gameState.clickPower - 1); // Click Power starts at 1
+                $('enhance-level').textContent = `(Lvl ${gameState.clickPower.toFixed(0)})`;
+                $('enhance-cost').textContent = nextClickCost.toLocaleString();
+                $('enhance-buy').disabled = gameState.gems < nextClickCost;
 
-        // --- GAME CALCULATIONS ---
-        const calculateStats = () => {
-            let baseClickPower = 1;
-            let baseAutoRate = 0;
-            baseClickPower += gameState.upgrades.click_power_1 * UPGRADES.click_power_1.effect;
-            baseClickPower += gameState.upgrades.click_power_2 * UPGRADES.click_power_2.effect;
-            baseAutoRate += gameState.upgrades.auto_miner_1 * UPGRADES.auto_miner_1.effect;
-            baseAutoRate += gameState.upgrades.auto_miner_2 * UPGRADES.auto_miner_2.effect;
-            const ppMult = 1 + (gameState.prestigePoints * PP_MULTIPLIER_BONUS);
-            const suitMult = gameState.upgrades.aetherium_suit > 0 ? UPGRADES.aetherium_suit.effect : 1;
-            gameState.miningMultiplier = Math.floor(baseClickPower * ppMult);
-            gameState.autoRate = Math.floor(baseAutoRate * ppMult * suitMult);
-            return gameState.miningMultiplier;
-        };
+                // Automation Upgrades
+                const nextMinerCost = GEM_COSTS.miner(gameState.minerLevel);
+                $('miner-level').textContent = `(Lvl ${gameState.minerLevel})`;
+                $('miner-cost').textContent = nextMinerCost.toLocaleString();
+                $('miner-income').textContent = `Generates ${ (gameState.minerLevel * 0.1).toFixed(2) } G/sec base.`;
+                $('miner-buy').disabled = gameState.gems < nextMinerCost;
 
-        const calculatePrestige = () => {
-            const currentReq = PRESTIGE_BASE_REQ; 
-            const ppGained = Math.floor(gameState.lifetimeGold / currentReq);
-            
-            elements.lifetimeGold.textContent = formatNumber(gameState.lifetimeGold) + ' 💰';
-            elements.nextPPReq.textContent = formatNumber(currentReq) + ' 💰';
-            elements.ppGained.textContent = formatNumber(ppGained) + ' ⭐';
-            elements.ppBonus.textContent = `x${(1 + (gameState.prestigePoints * PP_MULTIPLIER_BONUS)).toFixed(2)}`;
+                const nextAutoClickerCost = GEM_COSTS.autoclicker(gameState.autoClickerLevel);
+                $('autoclicker-level').textContent = `(Lvl ${gameState.autoClickerLevel})`;
+                $('autoclicker-cost').textContent = nextAutoClickerCost.toLocaleString();
+                $('autoclicker-income').textContent = `Simulates ${gameState.autoClickerLevel} clicks per second.`;
+                $('autoclicker-buy').disabled = gameState.gems < nextAutoClickerCost;
 
-            if (ppGained > 0) {
-                elements.prestigeBtn.disabled = false;
-                elements.prestigeBtn.textContent = `PRESTIGE & GAIN ${formatNumber(ppGained)} PP!`;
-                elements.prestigeMessage.classList.add('hidden');
+            } 
+            // --- Prestige Tab ---
+            else if (gameState.currentTab === 'prestige') {
+                $('upgrades-gems').classList.add('hidden');
+                $('upgrades-prestige').classList.remove('hidden');
+                $('tab-gems').classList.remove('accent-button');
+                $('tab-gems').classList.add('bg-[#161B22]', 'text-gray-400');
+                $('tab-prestige').classList.add('accent-button');
+                $('tab-prestige').classList.remove('bg-[#161B22]', 'text-gray-400');
+                
+                // Prestige Button Logic
+                const newCrystals = calculateCrystalsOnPrestige();
+                $('prestige-new-crystals').textContent = newCrystals;
+                $('prestige-current-gems').textContent = gameState.gems.toFixed(0);
+                
+                const isReady = gameState.gems >= PRESTIGE_THRESHOLD;
+                $('prestige-btn').disabled = !isReady;
+                $('prestige-requirement').classList.toggle('text-green-500', isReady);
+                $('prestige-requirement').classList.toggle('text-red-500', !isReady);
+            }
+
+
+            // User ID
+            $('player-id').textContent = userId;
+            $('player-id-footer').textContent = userId;
+        }
+
+        // Game Logic Functions
+        function clickGem() {
+            gameState.gems += gameState.clickPower;
+            updateUI();
+            saveGameState(); // Save immediately on click for quick persistence
+        }
+
+        function buyUpgrade(type) {
+            let cost;
+            if (type === 'click') {
+                cost = GEM_COSTS.click(gameState.clickPower - 1);
+                if (gameState.gems >= cost) {
+                    gameState.gems -= cost;
+                    gameState.clickPower += 1.00;
+                }
+            } else if (type === 'miner') {
+                cost = GEM_COSTS.miner(gameState.minerLevel);
+                if (gameState.gems >= cost) {
+                    gameState.gems -= cost;
+                    gameState.minerLevel += 1;
+                }
+            } else if (type === 'autoclicker') {
+                cost = GEM_COSTS.autoclicker(gameState.autoClickerLevel);
+                if (gameState.gems >= cost) {
+                    gameState.gems -= cost;
+                    gameState.autoClickerLevel += 1;
+                }
+            }
+            updateUI();
+            saveGameState();
+        }
+        
+        function performPrestige() {
+            const newCrystals = calculateCrystalsOnPrestige();
+            if (newCrystals > 0) {
+                // 1. Gain Crystals
+                gameState.crystals += newCrystals;
+                gameState.prestigeCount += 1;
+                
+                // 2. Reset Gem State (keep crystals and prestige count)
+                gameState.gems = 0;
+                gameState.clickPower = 1.0;
+                gameState.minerLevel = 0;
+                gameState.autoClickerLevel = 0;
+                
+                // 3. Save and Update UI
+                updateUI();
+                saveGameState();
             } else {
-                elements.prestigeBtn.disabled = true;
-                elements.prestigeBtn.textContent = `NEED MORE GOLD`;
-                elements.prestigeMessage.classList.remove('hidden');
+                console.warn("Prestige failed: Not enough gems.");
+            }
+        }
+
+        // Firebase Functions
+        function getGameStateRef(id) {
+            // Private data storage path: /artifacts/{appId}/users/{userId}/gameData/state
+            return doc(db, 'artifacts', appId, 'users', id, 'gameData', 'state');
+        }
+
+        async function saveGameState() {
+            if (!isAuthReady || !userId || !db) return;
+            try {
+                // Save the current state
+                await setDoc(getGameStateRef(userId), gameState, { merge: true });
+                // console.log("Game state saved successfully.");
+            } catch (e) {
+                console.error("Error saving document: ", e);
+            }
+        }
+
+        function loadGameState(id) {
+            if (unsubscribeGameState) {
+                unsubscribeGameState(); // Unsubscribe from previous listener if changing user
+            }
+
+            // Set up real-time listener
+            unsubscribeGameState = onSnapshot(getGameStateRef(id), (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    const loadedState = docSnapshot.data();
+                    // Merge loaded state with default state to ensure all fields exist
+                    gameState = { ...gameState, ...loadedState }; 
+                    console.log("Game state loaded in real-time:", gameState);
+                } else {
+                    console.log("No existing game state found. Using initial state.");
+                }
+                updateUI();
+            }, (error) => {
+                console.error("Error listening to game state:", error);
+            });
+        }
+
+        // Game Loop (for passive income)
+        let lastUpdate = Date.now();
+        function gameLoop() {
+            const now = Date.now();
+            const deltaTime = (now - lastUpdate) / 1000; // Time in seconds
+            lastUpdate = now;
+
+            if (isAuthReady) {
+                const income = getGemsPerSecond() * deltaTime;
+                gameState.gems += income;
+
+                updateUI();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // PWA & Auth Setup
+        async function initApp() {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // 1. Authenticate
+                await new Promise((resolve) => {
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            userId = user.uid;
+                        } else {
+                            // Sign in anonymously if no token is provided or if state is lost
+                            if (initialAuthToken) {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                                userId = auth.currentUser.uid;
+                            } else {
+                                await signInAnonymously(auth);
+                                userId = auth.currentUser.uid;
+                            }
+                        }
+                        isAuthReady = true;
+                        // console.log("Authentication Ready. User ID:", userId);
+                        $('player-id').textContent = userId;
+                        resolve();
+                    });
+                });
+
+                // 2. Load Game State and Start Loop
+                loadGameState(userId);
+                gameLoop(); // Start the passive income loop
+
+                // 3. Register Event Listeners
+                $('source-circle').addEventListener('click', clickGem);
+                $('enhance-buy').addEventListener('click', () => buyUpgrade('click'));
+                $('miner-buy').addEventListener('click', () => buyUpgrade('miner'));
+                $('autoclicker-buy').addEventListener('click', () => buyUpgrade('autoclicker'));
+                
+                // Tab Listeners
+                $('tab-gems').addEventListener('click', () => switchTab('gems'));
+                $('tab-prestige').addEventListener('click', () => switchTab('prestige'));
+                
+                // Prestige Listener
+                $('prestige-btn').addEventListener('click', performPrestige);
+
+            } catch (error) {
+                console.error("Firebase/App Initialization Error:", error);
+            }
+        }
+
+        window.onload = () => {
+            initApp();
+
+            // PWA Service Worker Registration
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then((reg) => console.log('Service Worker Registered (scope: ' + reg.scope + ')'))
+                    .catch((err) => console.log('Service Worker Registration Failed:', err));
             }
         };
 
-        // --- UI RENDERING (Rest of the rendering logic is omitted for brevity) ---
-        const generateShopItemHTML = (id, upgrade) => {
-            const currentCount = gameState.upgrades[id] || 0;
-            const isOneTime = upgrade.costFormula(1) === Infinity || UPGRADES[id].name.includes('(Feature)');
-            const currencySymbol = upgrade.type === 'gold' ? '💰' : '⚛️';
-            const currencyType = upgrade.type;
-            
-            if (isOneTime && currentCount > 0) {
-                return ''; 
-            }
-            
-            const cost = Math.floor(upgrade.costFormula(currentCount));
-            const currentCurrency = currencyType === 'gold' ? gameState.gold : gameState.aetherium;
-            const canAfford = currentCurrency >= cost;
-            const countText = isOneTime 
-                ? `<p class="text-xs text-green-400 mt-1">One-Time Feature</p>` 
-                : `<span class="font-extrabold text-lg text-cyan-300">Level ${currentCount}</span>`;
-            const costText = `Cost: ${formatNumber(cost)} ${currencySymbol}`;
-            const buttonText = isOneTime ? `BUY` : `UPGRADE`;
-            const currencyClass = currencyType === 'gold' ? 'gold-btn' : 'aetherium-btn';
-            const colorClass = currencyType === 'gold' ? 'border-yellow-500' : 'border-purple-500';
+        // Export functions to window for HTML event listeners (though mostly handled by JS now)
+        window.clickGem = clickGem;
+    </script>
 
-            return `
-                <div class="shop-item flex flex-col sm:flex-row justify-between items-center p-4 rounded-xl shadow-lg ${colorClass}">
-                    <div class="mb-3 sm:mb-0 sm:w-2/3">
-                        <div class="flex items-center space-x-3">
-                            <span class="text-4xl">${upgrade.icon}</span>
-                            <div>
-                                <h3 class="text-xl font-bold text-white">${upgrade.name}</h3>
-                                <p class="text-gray-400 text-sm">${upgrade.description}</p>
-                                ${countText}
+
+    <div class="game-container">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-center mb-4" style="color: #ff8c00; text-shadow: 0 0 10px rgba(255, 140, 0, 0.5);">Cosmic Gem Clicker</h1>
+        <p id="player-id-display" class="text-center text-sm mb-6 text-gray-500">Player ID: <span id="player-id">Loading...</span></p>
+
+        <!-- Resources Section (Flex on desktop, grid/stacked on mobile) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <!-- Gems Card -->
+            <div class="dark-card">
+                <h2 class="text-xl font-bold mb-2" style="color: #58a6ff;">Gems</h2>
+                <div class="text-5xl font-extrabold" id="gems-amount">0</div>
+                <p class="text-gray-400 mt-2 text-sm" id="gems-rate">Rate: 0.00 G/sec</p>
+            </div>
+
+            <!-- Crystals Card -->
+            <div class="dark-card">
+                <h2 class="text-xl font-bold mb-2" style="color: #6a5acd;">Crystals (Prestige Currency)</h2>
+                <div class="text-5xl font-extrabold" id="crystals-amount">0</div>
+                <p class="text-gray-400 mt-2 text-sm" id="crystals-rate">Total Prestige: 0</p>
+            </div>
+        </div>
+
+        <!-- Main Game Area (Clicker & Upgrades) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Click Source Section -->
+            <div class="dark-card col-span-1 flex flex-col items-center">
+                <h2 class="text-xl font-bold mb-4">The Source</h2>
+                <p class="text-lg mb-4 text-gray-300">Click Power: <span id="click-power">1.00</span> G/Click</p>
+
+                <div id="source-circle" class="source-circle mb-4 flex-shrink-0">
+                    <span class="gem-icon">💎</span>
+                </div>
+                <p class="text-sm text-gray-500">Manual Click Income</p>
+            </div>
+
+            <!-- Upgrades Tab Selector -->
+            <div class="lg:col-span-2">
+                <div class="flex mb-4">
+                    <button id="tab-gems" class="px-6 py-3 rounded-t-lg accent-button shadow-xl">Gem Upgrades</button>
+                    <button id="tab-prestige" class="px-6 py-3 rounded-t-lg bg-[#161B22] text-gray-400 font-bold hover:bg-[#20252C]">Crystals & Prestige</button>
+                </div>
+
+                <!-- Upgrades Content CONTAINER -->
+                <div class="dark-card">
+                    <!-- Gem Upgrades Panel (Initially visible) -->
+                    <div id="upgrades-gems">
+                        <!-- Click Upgrades -->
+                        <div class="mb-6">
+                            <h3 class="text-2xl font-bold mb-4" style="color: #58a6ff;">Click Upgrades</h3>
+                            <div id="click-upgrade" class="upgrade-card flex justify-between items-center p-4 rounded-lg">
+                                <div>
+                                    <h4 class="text-lg font-semibold text-white">Enhance Click Power <span id="enhance-level" class="text-sm text-gray-400">(Lvl 1)</span></h4>
+                                    <p class="text-sm text-gray-400">Increases GEMS per click by 1.00.</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span id="enhance-cost" class="font-bold text-xl text-yellow-400">10</span>
+                                    <span class="font-bold text-lg text-yellow-400">G</span>
+                                    <button id="enhance-buy" class="px-4 py-2 bg-green-600 rounded-md font-bold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">Buy</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Automation Panel -->
+                        <div>
+                            <h3 class="text-2xl font-bold mb-4" style="color: #58a6ff;">Automation</h3>
+                            <div class="space-y-4">
+                                <!-- New Gem Miner -->
+                                <div id="miner-upgrade" class="upgrade-card flex justify-between items-center p-4 rounded-lg">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-white">Buy New Gem Miner <span id="miner-level" class="text-sm text-gray-400">(Lvl 0)</span></h4>
+                                        <p id="miner-income" class="text-sm text-gray-400">Generates 0.00 G/sec base.</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span id="miner-cost" class="font-bold text-xl text-yellow-400">50</span>
+                                        <span class="font-bold text-lg text-yellow-400">G</span>
+                                        <button id="miner-buy" class="px-4 py-2 bg-green-600 rounded-md font-bold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">Buy</button>
+                                    </div>
+                                </div>
+                                <!-- Auto-Clicker -->
+                                <div id="autoclicker-upgrade" class="upgrade-card flex justify-between items-center p-4 rounded-lg">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-white">Auto-Clicker <span id="autoclicker-level" class="text-sm text-gray-400">(Lvl 0)</span></h4>
+                                        <p id="autoclicker-income" class="text-sm text-gray-400">Simulates 0 clicks per second.</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span id="autoclicker-cost" class="font-bold text-xl text-yellow-400">1,000</span>
+                                        <span class="font-bold text-lg text-yellow-400">G</span>
+                                        <button id="autoclicker-buy" class="px-4 py-2 bg-green-600 rounded-md font-bold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">Buy</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="flex flex-col items-end sm:w-1/3">
-                        <p class="text-lg font-semibold mb-2 ${canAfford ? 'text-white' : 'text-red-400'}">${costText}</p>
-                        <button 
-                            onclick="buyUpgrade('${id}', '${currencyType}')" 
-                            ${!canAfford ? 'disabled' : ''}
-                            class="shop-buy-btn w-full ${currencyClass}"
-                        >
-                            ${buttonText}
-                        </button>
+
+                    <!-- Prestige Upgrades Panel (Initially hidden) -->
+                    <div id="upgrades-prestige" class="hidden text-center">
+                        <h3 class="text-2xl font-bold mb-4" style="color: #6a5acd;">Prestige Protocol</h3>
+                        <p class="text-lg mb-6 text-gray-300">
+                            Prestige resets your Gems and Upgrades, but grants permanent Crystals.
+                            Each Crystal increases all future Gem generation by <span class="font-bold text-green-400">1%</span>.
+                        </p>
+                        
+                        <div class="mb-8 p-4 border border-gray-700 rounded-lg">
+                            <p class="text-xl font-semibold mb-2">Gems Earned This Run: <span id="prestige-current-gems" class="text-yellow-400">0</span></p>
+                            <p class="text-sm text-gray-400 mb-4">You need 50,000 Gems to perform Prestige.</p>
+                            
+                            <p id="prestige-requirement" class="text-3xl font-extrabold mb-6">
+                                New Crystals to Earn: <span id="prestige-new-crystals">0</span> 💎
+                            </p>
+                            
+                            <button id="prestige-btn" class="prestige-button px-8 py-3 rounded-xl font-extrabold text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                                Initiate Prestige & Reset
+                            </button>
+                        </div>
+                        
+                        <p class="text-sm text-gray-500">Current Crystals: <span class="text-white font-bold" id="current-crystals-display">0</span> | Total Prestige Runs: <span class="text-white font-bold" id="prestige-count-display">0</span></p>
                     </div>
                 </div>
-            `;
-        };
+            </div>
+        </div>
 
-        const renderShop = () => {
-            let goldHTML = '';
-            let aetheriumHTML = '';
-            for (const id in UPGRADES) {
-                const upgrade = UPGRADES[id];
-                if (upgrade.type === 'gold') {
-                    goldHTML += generateShopItemHTML(id, upgrade);
-                } else if (upgrade.type === 'aetherium') {
-                    if (gameState.upgrades.aetherium_unlock > 0) {
-                         aetheriumHTML += generateShopItemHTML(id, upgrade);
-                    }
-                }
-            }
-            elements.shopListGold.innerHTML = goldHTML;
-            elements.shopListAetherium.innerHTML = aetheriumHTML || '<p class="text-gray-500 p-4 bg-[#21262d] rounded-xl border border-gray-700">Aetherium upgrades will appear here once **Aetherium Access** is purchased in the Gold System Upgrades.</p>';
-        };
-        
-        const updateUI = () => {
-            const goldPerClick = calculateStats();
-            elements.playerNameDisplay.textContent = gameState.playerName || 'Pilot';
-            elements.goldDisplay.textContent = formatNumber(gameState.gold) + ' 💰';
-            elements.aetheriumDisplay.textContent = formatNumber(gameState.aetherium) + ' ⚛️';
-            elements.ppDisplay.textContent = formatNumber(gameState.prestigePoints) + ' ⭐';
-            elements.playerNameInput.value = gameState.playerName || '';
-            elements.goldPerClick.textContent = formatNumber(goldPerClick);
-            elements.autoRate.textContent = formatNumber(gameState.autoRate);
+        <p class="text-center text-xs text-gray-600 mt-8">
+            Game State Version 2.2 | Real-time Persistence via Firestore (ID: <span id="player-id-footer">Loading...</span>)
+        </p>
 
-            const combatUnlocked = gameState.upgrades.combat_access > 0;
-            const bladeOwned = gameState.upgrades.aetherium_blade > 0;
-
-            if (document.getElementById('tab-combat').classList.contains('hidden') === false) {
-                if (combatUnlocked) {
-                    elements.combatLockOverlay.classList.add('hidden');
-                } else {
-                    elements.combatLockOverlay.classList.remove('hidden');
-                }
-            }
-            
-            if (bladeOwned) {
-                elements.combatItemLock.classList.add('hidden');
-            } else {
-                elements.combatItemLock.classList.remove('hidden');
-            }
-
-            if (gameState.upgrades.aetherium_unlock > 0) {
-                elements.aetheriumMineArea.classList.remove('hidden');
-            } else {
-                elements.aetheriumMineArea.classList.add('hidden');
-            }
-
-            calculatePrestige();
-
-            if (gameState.currentTab === 'shop') {
-                renderShop();
-            }
-
-            updateDailyUI();
-        };
-
-
-        // --- TUTORIAL LOGIC FIXES ---
-
-        const clearHighlights = () => {
-            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
-        };
-
-        window.showTutorial = () => {
-            if (gameState.isTutorialComplete) return;
-
-            tutorialStep = 0;
-            // Use flex display to center the modal
-            elements.tutorialModal.style.display = 'flex';
-            elements.tutorialModal.classList.remove('hidden');
-            elements.gameContainer.style.pointerEvents = 'none'; // Disable game interaction
-            nextTutorialStep(true); 
-        };
-        
-        window.nextTutorialStep = (isInitial = false) => {
-            if (elements.tutorialModal.classList.contains('hidden')) return; // Guard clause
-
-            clearHighlights();
-            
-            if (!isInitial) {
-                tutorialStep++;
-            }
-
-            if (tutorialStep >= TUTORIAL_STEPS.length) {
-                completeTutorial();
-                return;
-            }
-
-            const step = TUTORIAL_STEPS[tutorialStep];
-            elements.tutorialTitle.textContent = step.title;
-            elements.tutorialText.textContent = step.text;
-            elements.tutorialNextBtn.textContent = tutorialStep === TUTORIAL_STEPS.length - 1 ? "START MINING!" : `NEXT (${tutorialStep + 1}/${TUTORIAL_STEPS.length})`;
-
-            if (step.highlightId) {
-                const target = document.getElementById(step.highlightId);
-                if (target) {
-                    target.classList.add('highlight');
-                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-            
-            if (step.tabToSwitch) {
-                switchTab(step.tabToSwitch, false);
-            }
-        };
-
-        window.skipTutorial = () => {
-            completeTutorial();
-        };
-
-        const completeTutorial = () => {
-            elements.tutorialModal.classList.add('hidden');
-            elements.tutorialModal.style.display = 'none'; 
-            elements.gameContainer.style.pointerEvents = 'auto'; 
-            clearHighlights();
-            gameState.isTutorialComplete = true; 
-            window.switchTab('mine'); 
-            saveState(); 
-            displayMessage("Tutorial complete. Welcome to the galaxy!");
-        };
-
-        // --- FIREBASE OPERATIONS (Omitted for brevity, but remain unchanged) ---
-
-        const saveState = async () => {
-            if (!userId) return; 
-            try {
-                const userDocRef = getUserDocRef(userId);
-                await setDoc(userDocRef, gameState);
-                await setDoc(getLeaderboardDocRef(userId), {
-                    userId: userId,
-                    playerName: gameState.playerName,
-                    prestigePoints: gameState.prestigePoints,
-                    gold: gameState.gold,
-                    lastUpdate: new Date().getTime(),
-                });
-            } catch (error) {
-                console.error("Error saving state:", error);
-                displayMessage("Failed to save game state!", true);
-            }
-        };
-
-        const loadState = (data) => {
-            gameState = {
-                ...gameState,
-                ...data,
-                playerName: data.playerName || 'Pilot', 
-                isTutorialComplete: data.isTutorialComplete !== undefined ? data.isTutorialComplete : false,
-                upgrades: { ...gameState.upgrades, ...data.upgrades },
-            };
-            updateUI();
-        };
-        
-        // --- LEADERBOARD LOGIC (Omitted for brevity) ---
-        const updateLeaderboard = async () => { /* ... unchanged ... */ };
-        
-        // --- DAILY REWARD LOGIC (Omitted for brevity) ---
-        const MS_PER_DAY = 24 * 60 * 60 * 1000;
-        const canClaimDaily = () => { /* ... unchanged ... */ return new Date().getTime() - gameState.lastDailyClaim >= MS_PER_DAY; };
-        const updateDailyUI = () => { /* ... unchanged ... */ };
-        window.claimDailyReward = () => { /* ... unchanged ... */ };
-
-        // --- USER ACTIONS (Omitted for brevity) ---
-        window.setPlayerName = () => { /* ... unchanged ... */ };
-        window.switchTab = (tabName, shouldCheckLock = true) => {
-            if (shouldCheckLock && tabName === 'combat' && gameState.upgrades.combat_access === 0) {
-                displayMessage("Purchase the Combat License first!", true);
-                return;
-            }
-            gameState.currentTab = tabName;
-            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-
-            if (tabName === 'shop') renderShop();
-            if (tabName === 'leaderboard') updateLeaderboard();
-
-            if (shouldCheckLock) saveState();
-        };
-        window.mineGold = () => { /* ... unchanged ... */ 
-            const goldGained = calculateStats();
-            gameState.gold += goldGained;
-            gameState.lifetimeGold += goldGained;
-            updateUI();
-        };
-        window.mineAetherium = () => { /* ... unchanged ... */ };
-        window.buyUpgrade = (id, currencyType) => { /* ... unchanged ... */ };
-        window.performPrestige = () => { /* ... unchanged ... */ };
-        window.startCombat = (enemyId) => { /* ... unchanged ... */ };
-
-        // --- AUTO MINER LOOP (Omitted for brevity) ---
-        setInterval(() => { /* ... unchanged ... */ }, 1000);
-
-        // --- INITIALIZATION ---
-        
-        const initFirebaseAndLoadGame = async () => {
-            if (firebaseConfig) {
-                setLogLevel('Debug');
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                cacheElements(); 
-                
-                // PWA Registration: Attempts to register the service worker
-                if ('serviceWorker' in navigator) {
-                    try {
-                        const registration = await navigator.serviceWorker.register('/service-worker.js');
-                        console.log('Service Worker registered with scope:', registration.scope);
-                    } catch (error) {
-                        console.error('Service Worker registration failed:', error);
-                    }
-                } else {
-                    console.warn('Service Workers not supported by this browser.');
-                }
-                
-                // Hide the modal explicitly at startup
-                elements.tutorialModal.style.display = 'none';
-
-                try {
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                    
-                    onAuthStateChanged(auth, (user) => {
-                        if (user) {
-                            userId = user.uid;
-                            elements.userIdDisplay.textContent = userId;
-                            
-                            const userDocRef = getUserDocRef(userId);
-                            
-                            onSnapshot(userDocRef, (docSnap) => {
-                                if (docSnap.exists()) {
-                                    loadState(docSnap.data());
-                                    displayMessage("Game state loaded from cloud.");
-                                } else {
-                                    loadState(gameState); 
-                                    saveState();
-                                    displayMessage("Welcome! New game created.");
-                                }
-                                
-                                window.switchTab(gameState.currentTab, false);
-                                
-                                // Show tutorial only if necessary
-                                if (!gameState.isTutorialComplete) {
-                                    showTutorial();
-                                } else {
-                                    // Ensure full hide if tutorial is done
-                                    elements.tutorialModal.classList.add('hidden');
-                                    elements.tutorialModal.style.display = 'none';
-                                    elements.gameContainer.style.pointerEvents = 'auto'; 
-                                }
-
-                            }, (error) => {
-                                console.error("Firestore snapshot error:", error);
-                                displayMessage(`Error loading state: ${error.code}`, true);
-                            });
-
-                        } else {
-                            displayMessage("Authentication failed.", true);
-                        }
-                    });
-
-                } catch (error) {
-                    console.error("Authentication Error:", error);
-                    displayMessage(`Auth Error: ${error.message}`, true);
-                }
-
-            } else {
-                document.getElementById('message-display').textContent = "ERROR: Firebase config missing. Game cannot save.";
-                document.getElementById('message-display').classList.add('text-red-400');
-            }
-        };
-
-        window.onload = initFirebaseAndLoadGame;
-
-    </script>
+    </div>
 </body>
 </html>
