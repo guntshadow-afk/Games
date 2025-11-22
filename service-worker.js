@@ -1,6 +1,6 @@
 // Service Worker for Caching - Required for PWA install prompt
 
-const CACHE_NAME = 'cosmic-gem-clicker-v4';
+const CACHE_NAME = 'cosmic-gem-clicker-v5'; // Incrementing cache version to force update
 // List essential files to cache for offline use
 const urlsToCache = [
     '/',
@@ -9,7 +9,9 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', (event) => {
-    // Perform install steps and cache static assets
+    // Force the service worker to activate immediately, bypassing the waiting state
+    self.skipWaiting();
+    
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
@@ -18,6 +20,26 @@ self.addEventListener('install', (event) => {
                     console.warn('Service Worker: Failed to cache some resources (CDNs likely):', err);
                 });
             })
+    );
+});
+
+self.addEventListener('activate', (event) => {
+    // Take control of all clients immediately
+    event.waitUntil(self.clients.claim());
+
+    // Clean up old caches
+    const cacheWhitelist = [CACHE_NAME];
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                        console.log('Service Worker: Deleting old cache:', cacheName);
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
     );
 });
 
@@ -34,21 +56,5 @@ self.addEventListener('fetch', (event) => {
                 return fetch(event.request);
             }
         )
-    );
-});
-
-self.addEventListener('activate', (event) => {
-    // Clean up old caches
-    const cacheWhitelist = [CACHE_NAME];
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheWhitelist.indexOf(cacheName) === -1) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
     );
 });
