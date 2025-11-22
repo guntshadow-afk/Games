@@ -9,7 +9,7 @@
     <link rel="manifest" href="manifest.json">
     
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=JetBrains+Mono:wght==400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
 
@@ -30,6 +30,13 @@
             overflow: hidden;
             height: 100vh;
             width: 100vw;
+            /* Hide content initially to prevent FOUC before loading screen takes over */
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        body.loaded {
+            opacity: 1;
         }
 
         /* --- UI COMPONENTS --- */
@@ -84,12 +91,6 @@
         .nav-item { @apply flex items-center p-3 rounded-lg cursor-pointer transition-colors text-gray-400 hover:text-white hover:bg-white/5 border border-transparent; }
         .nav-item.active { @apply bg-indigo-900/40 text-indigo-300 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.15)]; }
 
-        /* Shop Items */
-        .shop-item-card {
-            @apply flex justify-between items-center bg-slate-800/50 p-3 rounded border border-white/5 mb-2 transition-colors;
-        }
-        .shop-item-card:hover { @apply bg-slate-800; }
-
         /* Highlight for Tutorial */
         .tutorial-highlight {
             position: relative;
@@ -101,29 +102,134 @@
         }
         @keyframes pulse-highlight { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
         
+        /* Tutorial overlay background: Blur removed and opacity slightly reduced */
         .tutorial-overlay-bg {
-            background-color: rgba(0,0,0,0.85);
-            backdrop-filter: blur(4px);
+            background-color: rgba(0,0,0,0.7); 
+            backdrop-filter: blur(0px); /* REMOVED BLUR */
+            -webkit-backdrop-filter: blur(0px); /* REMOVED BLUR */
+            pointer-events: none; 
         }
+
+        /* Modal positioning to avoid blocking the Core */
+        #tut-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            /* Shift slightly off center to avoid blocking the core button */
+            margin-left: 200px; 
+        }
+
+        /* Responsive shift for mobile */
+        @media (max-width: 768px) {
+            #tut-modal {
+                margin-left: 0;
+                top: 75%; /* Push it lower */
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #icon-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* --- NEW LOADING SCREEN STYLES --- */
+        #app-loading-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, #0a0e1c 0%, #020204 100%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(0.3); opacity: 0.8; }
+            50% { transform: scale(1); opacity: 0; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+
+        .cosmic-loader {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin-bottom: 2rem;
+        }
+
+        .cosmic-loader .core-star {
+            width: 50px;
+            height: 50px;
+            background: #ffcc00;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 30px #ffcc00, 0 0 50px #ff00ff;
+            animation: spin 6s linear infinite reverse;
+        }
+        
+        .cosmic-loader .pulse-wave {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid rgba(99, 102, 241, 0.5); /* Primary color */
+            border-radius: 50%;
+            animation: pulse-ring 2s infinite ease-out;
+        }
+
+        .cosmic-loader .pulse-wave:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
     </style>
 </head>
+<!-- Initial opacity is 0 on body, will be set to 1 when loading screen is done -->
 <body class="flex flex-col md:flex-row">
+    
+    <!-- NEW: Loading Screen (Z-index 1000) -->
+    <div id="app-loading-screen">
+        <div class="cosmic-loader">
+            <div class="pulse-wave"></div>
+            <div class="pulse-wave"></div>
+            <div class="core-star"></div>
+        </div>
+        <p class="text-3xl font-bold text-indigo-400">COSMIC INIT...</p>
+        <p class="text-sm text-gray-500 mt-2">Preparing the Universal Interface</p>
+    </div>
 
-    <!-- TUTORIAL OVERLAY -->
-    <div id="tutorial-overlay" class="fixed inset-0 z-[200] hidden tutorial-overlay-bg flex-col items-center justify-center pointer-events-auto">
-        <div class="glass-panel p-8 max-w-md text-center border-2 border-yellow-400 shadow-2xl">
+    <!-- TUTORIAL OVERLAY (Fixed: pointer-events-none) -->
+    <div id="tutorial-overlay" class="fixed inset-0 z-[200] hidden tutorial-overlay-bg flex-col items-center justify-center">
+        <!-- Tutorial Modal (Fixed: pointer-events-auto) -->
+        <div id="tut-modal" class="glass-panel p-8 max-w-md text-center border-2 border-yellow-400 shadow-2xl pointer-events-auto">
             <div class="text-5xl mb-4">🤖</div>
             <h3 class="text-2xl font-bold text-yellow-400 mb-2" id="tut-title">System Online</h3>
             <p class="text-gray-300 mb-6 leading-relaxed" id="tut-text">Initializing pilot interface...</p>
-            <button class="btn-push bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg" onclick="nextTutorial()">CONTINUE</button>
+            <button id="tut-continue-btn" class="btn-push bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg" onclick="nextTutorial()">CONTINUE</button>
+            <p id="tut-action-text" class="text-sm mt-4 text-yellow-300 hidden">Please interact with the highlighted element in the game.</p>
         </div>
     </div>
 
     <!-- SIDEBAR (Desktop) / BOTTOM BAR (Mobile) -->
     <nav class="md:w-64 bg-[#080b14] border-r border-white/10 flex-shrink-0 flex flex-col z-50 md:relative fixed bottom-0 w-full md:h-full h-auto border-t md:border-t-0">
-        <div class="p-6 hidden md:block border-b border-white/5">
-            <h1 class="text-2xl font-black tracking-tight text-white">COSMIC<span class="text-indigo-500">IDLE</span></h1>
-            <p class="text-[10px] text-gray-600 mt-1 tracking-widest uppercase">Offline Ready</p>
+        
+        <!-- NEW App Icon and Title -->
+        <div class="p-6 hidden md:block border-b border-white/5 text-center">
+            <div id="app-icon-container" class="w-20 h-20 mx-auto mb-2 relative">
+                <!-- Icon Spinner (Visible while loading) -->
+                <div id="icon-spinner" class="absolute inset-0 flex items-center justify-center text-xs text-indigo-400 border-2 border-dashed border-indigo-400/50 rounded-xl">
+                    <span class="animate-spin text-3xl">⚛️</span>
+                </div>
+                <!-- App Icon (Hidden until loaded) -->
+                <img id="app-icon" src="" alt="App Icon" class="w-full h-full rounded-xl object-cover shadow-lg border-2 border-indigo-400/50 hidden">
+            </div>
+            <h1 class="text-xl font-black tracking-tight text-white">COSMIC<span class="text-indigo-500">IDLE</span></h1>
         </div>
         
         <!-- Nav Links -->
@@ -208,17 +314,17 @@
             </div>
 
             <!-- TAB: PETS -->
-            <div id="tab-pets" class="tab-content hidden max-w-3xl mx-auto space-y-6">
-                <h2 class="text-3xl font-bold text-white mb-2">Companion Roster</h2>
-                <div id="pet-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <div id="tab-pets" class="tab-content hidden max-w-5xl mx-auto space-y-6">
+                <h2 class="text-3xl font-bold text-white mb-2">Companion Roster (Total: 54)</h2>
+                <div id="pet-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
 
             <!-- TAB: RELICS -->
-            <div id="tab-relics" class="tab-content hidden max-w-4xl mx-auto">
-                <h2 class="text-3xl font-bold text-amber-400 mb-2">Ancient Relics</h2>
+            <div id="tab-relics" class="tab-content hidden max-w-5xl mx-auto">
+                <h2 class="text-3xl font-bold text-amber-400 mb-2">Ancient Relics (Total: 53)</h2>
                 <p class="text-sm text-gray-400 mb-6">Rare artifacts that provide powerful global bonuses. Find them by playing!</p>
                 
-                <div id="relic-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div id="relic-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <!-- Relics generated here -->
                 </div>
             </div>
@@ -227,7 +333,7 @@
             <div id="tab-prestige" class="tab-content hidden max-w-3xl mx-auto space-y-6">
                 <div class="glass-panel p-6 border-l-4 border-purple-500">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-2xl font-bold text-white">Stardust Rebirth</h3>
+                        <h3 class="text-2xl font-bold text-white">Stardust Rebirth (Tier I)</h3>
                         <div class="text-right">
                             <p class="text-3xl font-black text-purple-400" id="val-sd-gain">+0</p>
                             <p class="text-[10px] text-gray-500 uppercase">Potential Gain</p>
@@ -241,7 +347,7 @@
                 <!-- Tier 2 -->
                  <div class="glass-panel p-6 border-l-4 border-teal-500 opacity-90 hover:opacity-100 transition">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-white">Galactic Shift</h3>
+                        <h3 class="text-xl font-bold text-white">Galactic Shift (Tier II)</h3>
                         <div class="text-right">
                             <p class="text-2xl font-black text-teal-400" id="val-gs-gain">+0</p>
                         </div>
@@ -268,9 +374,58 @@
     </main>
 
     <script type="module">
-        // --- NO FIREBASE DEPENDENCY FOR THIS VERSION TO ENSURE IT WORKS ---
-        // Using LocalStorage for robust offline play
-        
+        // --- IMAGE GENERATION FUNCTION (Anime Icon) ---
+        async function generateAnimeIcon() {
+            const prompt = "A high-resolution, anime-style icon for a cosmic universal idle game. The design should feature a cute, stylized black hole or a glowing atomic core, surrounded by sparkling stardust and a determined, chibi-style pilot character floating nearby. Digital art, vibrant colors, clean lines.";
+            const payload = { 
+                instances: { prompt: prompt }, 
+                parameters: { "sampleCount": 1 } 
+            };
+            const apiKey = ""; // Canvas provides this
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+            
+            const spinner = document.getElementById('icon-spinner');
+            const iconImg = document.getElementById('app-icon');
+            
+            let retries = 0;
+            const maxRetries = 5;
+            const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+            while (retries < maxRetries) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    const result = await response.json();
+                    
+                    if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                        const base64Data = result.predictions[0].bytesBase64Encoded;
+                        const imageUrl = `data:image/png;base64,${base64Data}`;
+                        
+                        spinner.classList.add('hidden');
+                        iconImg.src = imageUrl;
+                        iconImg.classList.remove('hidden');
+                        return;
+                    } else {
+                        console.error("Image generation failed: No base64 data received.");
+                    }
+                } catch (error) {
+                    retries++;
+                    if (retries >= maxRetries) {
+                        console.error("Failed to generate icon after multiple retries:", error);
+                        spinner.innerHTML = 'Icon Failed ❌';
+                        return;
+                    }
+                    await delay(Math.pow(2, retries) * 1000); // Exponential backoff
+                }
+            }
+        }
+
         // --- GAME DATA ---
         const UPGRADES = {
             c1: { name: 'Focus Lens', base: 15, mult: 1.5, power: 1, type: 'click' },
@@ -281,6 +436,7 @@
             i3: { name: 'Dyson Sphere', base: 10000, mult: 1.6, power: 200, type: 'idle' }
         };
         
+        // PETS and RELICS data... (omitted for brevity, assume the large arrays are here)
         const PETS = [
             { id: 0, name: "Star Wisp", bonus: 0.01, desc: "Your starting companion.", req: "None" },
             { id: 1, name: "Void Golem", bonus: 0.05, desc: "+5% Global Multiplier", req: "Unlock at 10 Stardust" },
@@ -288,11 +444,45 @@
             { id: 3, name: "Solar Phoenix", bonus: 0.25, desc: "+25% Global Multiplier", req: "Unlock at Prestige Tier 3" }
         ];
         
+        const PET_NAMES = ["Drone", "Bot", "Wisp", "Watcher", "Entity", "Hound", "Golem", "Jelly", "Phoenix", "Shade", "Lichen", "Spore"];
+        for (let i = 4; i < 54; i++) {
+            const nameIndex = i % PET_NAMES.length;
+            const sdReq = Math.floor(20 + Math.pow(i - 3, 1.8) * 4);
+            const bonus = 0.20 + (i - 3) * 0.05;
+            PETS.push({
+                id: i,
+                name: `Xenon ${PET_NAMES[nameIndex]} ${i-3}`,
+                bonus: bonus,
+                desc: `+${(bonus * 100).toFixed(1)}% Global Multiplier`,
+                req: `Unlock at ${sdReq} Stardust`
+            });
+        }
+        
         const RELICS = [
-            { id: 'r1', name: "Quantum Dice", desc: "Small chance for 10x click", icon: "🎲", hint: "Random drop from clicking" },
-            { id: 'r2', name: "Time Hourglass", desc: "Idle gain +20%", icon: "⏳", hint: "Random drop from Auto-Clicker" },
-            { id: 'r3', name: "Infinity Prism", desc: "Prestige gain +10%", icon: "💎", hint: "Unlocked at 100 Stardust" }
+            { id: 'r1', name: "Quantum Dice", desc: "Small chance for 10x click", icon: "🎲", hint: "Random drop from clicking", multiplier: { click: 1 } },
+            { id: 'r2', name: "Time Hourglass", desc: "Idle gain +20%", icon: "⏳", hint: "Random drop from Auto-Clicker", multiplier: { idle: 1.2 } },
+            { id: 'r3', name: "Infinity Prism", desc: "Prestige gain +10%", icon: "💎", hint: "Unlocked at 100 Stardust", multiplier: { prestige: 1.1 } }
         ];
+
+        const ICONS = ["🔭", "🛰️", "⚙️", "🛡️", "🔑", "💡", "💰", "📜", "🔮", "🪨", "☄️", "🪐", "🌀", "🧩", "🧬", "🌟", "✨", "🌌", "🌠", "☀️"];
+        const EFFECT_TYPES = ['idle', 'click', 'prestige'];
+        
+        for (let i = 4; i < 54; i++) {
+            const sdReq = i * 25; 
+            const effectType = EFFECT_TYPES[i % 3];
+            const bonus = 1 + (i * 0.015);
+            const multObj = { [effectType]: bonus };
+            
+            RELICS.push({
+                id: `r${i}`,
+                name: `Cosmic Shard ${i-3}`,
+                desc: `x${bonus.toFixed(2)} ${effectType.toUpperCase()} boost`,
+                icon: ICONS[i % ICONS.length],
+                hint: `Requires ${sdReq} Stardust to find`,
+                multiplier: multObj
+            });
+        }
+
 
         let state = {
             ce: 0, sd: 0, gs: 0, uf: 0,
@@ -303,15 +493,32 @@
             lastSave: Date.now()
         };
 
+        // --- RELIC MULTIPLIER CALCULATOR ---
+        function getRelicMultipliers() {
+            let mults = { click: 1, idle: 1, prestige: 1 };
+            RELICS.forEach(r => {
+                // Check if relic is unlocked and active (r1 is always active if unlocked)
+                if (state.relics.includes(r.id)) {
+                    if (r.multiplier.click) mults.click *= r.multiplier.click;
+                    if (r.multiplier.idle) mults.idle *= r.multiplier.idle;
+                    if (r.multiplier.prestige) mults.prestige *= r.multiplier.prestige;
+                }
+            });
+            return mults;
+        }
+
         // --- LOGIC ---
         function getCPC() {
             let base = 1;
             base += state.upgrades.c1 * UPGRADES.c1.power;
             base += state.upgrades.c2 * UPGRADES.c2.power;
             base += state.upgrades.c3 * UPGRADES.c3.power;
+            
             const sdMult = 1 + (state.sd * 0.05);
             const petMult = 1 + (state.pet.lvl * PETS[state.pet.id].bonus);
-            return base * sdMult * petMult;
+            const relicMults = getRelicMultipliers();
+
+            return base * sdMult * petMult * relicMults.click;
         }
 
         function getCPS() {
@@ -319,14 +526,18 @@
             base += state.upgrades.i1 * UPGRADES.i1.power;
             base += state.upgrades.i2 * UPGRADES.i2.power;
             base += state.upgrades.i3 * UPGRADES.i3.power;
+            
             const sdMult = 1 + (state.sd * 0.05);
-            const relicMult = state.relics.includes('r2') ? 1.2 : 1;
-            return base * sdMult * relicMult;
+            const relicMults = getRelicMultipliers();
+
+            return base * sdMult * relicMults.idle;
         }
 
         // --- ACTIONS ---
         window.clickCore = (e) => {
             let gain = getCPC();
+            
+            // Relic r1: Quantum Dice 10x click chance
             if (state.relics.includes('r1') && Math.random() < 0.05) {
                 gain *= 10;
                 createFloat("CRIT!", e.clientX, e.clientY - 50, '#facc15');
@@ -338,12 +549,13 @@
             if(state.pet.xp > state.pet.lvl * 100) {
                 state.pet.lvl++;
                 state.pet.xp = 0;
-                createFloat("Pet Level Up!", window.innerWidth/2, window.innerHeight/2, '#ec4899');
+                showFloatMessage("Pet Level Up!", `Your Pet is now Level ${state.pet.lvl}!`, '#ec4899');
             }
-            
-            // Tutorial Step 1
+
+            // Tutorial Step 1 completion
             if(state.tutorial === 1) {
-                nextTutorial(); 
+                // User clicked the core, move to step 2
+                nextTutorial(true); 
             }
 
             createFloat(`+${format(gain)}`, e.clientX, e.clientY);
@@ -356,34 +568,76 @@
             if (state.ce >= cost) {
                 state.ce -= cost;
                 state.upgrades[id]++;
+                
+                // Tutorial Step 3 completion (if they bought the first upgrade)
+                if(state.tutorial === 3 && id === 'c1') {
+                    nextTutorial(true); 
+                }
+
                 updateUI();
                 updateShopButtons();
-                
-                // Tutorial Step 2
-                if(state.tutorial === 2) {
-                    nextTutorial(); 
-                }
                 saveGame();
             }
         };
         
         window.doPrestige = (tier) => {
              if (tier === 1 && state.ce >= 1000000) {
-                 state.sd += Math.floor(state.ce / 1000000);
+                 const relicMults = getRelicMultipliers();
+                 // Gain is base CE / 1M * Prestige Relic Multiplier
+                 state.sd += Math.floor((state.ce / 1000000) * relicMults.prestige); 
                  state.ce = 0;
                  state.upgrades = { c1: 0, c2: 0, c3: 0, i1: 0, i2: 0, i3: 0 };
+                 state.pet.lvl = 1;
+                 state.pet.xp = 0;
+
+                 // Tutorial Step 6 completion (Prestige) - This will be the FINAL step clicked by the user
+                 if(state.tutorial === 6) {
+                    // NOTE: This interaction is NOT the end of the tutorial, it only advances the step number
+                    nextTutorial(true); 
+                 }
+
                  updateUI();
                  saveGame();
              }
         }
         
         window.equipPet = (id) => {
-            if (id === 0 || (id === 1 && state.sd >= 10) || (id === 2 && state.gs >= 1)) {
+            const pet = PETS[id];
+            const sdReq = pet.id >= 4 ? PETS[p.id].req.match(/\d+/g)[0] : (pet.id === 1 ? 10 : 0);
+            const gsReq = pet.id === 2 ? 1 : 0;
+            const unlocked = (p.id === 0) || (state.sd >= sdReq) || (state.gs >= gsReq);
+
+            if (unlocked) {
                 state.pet.id = id;
+
+                // Tutorial Step 4 completion (Equip pet)
+                if(state.tutorial === 4) {
+                    // Check if they equipped a pet (id > 0 if they clicked the button)
+                    if(id === 0) { // Equip Star Wisp
+                        nextTutorial(true);
+                    }
+                }
+
                 updateUI();
                 saveGame();
             }
         }
+
+        // Overridden setTab to handle tutorial progression
+        window.setTab = (id) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${id}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`nav-${id}`).classList.add('active');
+            
+            // Check for tutorial progression when switching tabs
+            if(state.tutorial === 2 && id === 'upgrades') nextTutorial(true);
+            if(state.tutorial === 4 && id === 'pets') nextTutorial(true);
+            if(state.tutorial === 5 && id === 'relics') nextTutorial(true);
+            if(state.tutorial === 6 && id === 'prestige') nextTutorial(true);
+
+            if(id === 'leaderboard') simulateLeaderboard();
+        };
 
         // --- UI ---
         function initShop() {
@@ -398,7 +652,7 @@
                             <div class="font-bold text-sm text-gray-200">${v.name} <span class="text-xs text-indigo-400" id="lvl-${k}">Lv0</span></div>
                             <div class="text-xs text-gray-500">+${v.power} ${v.type.toUpperCase()}</div>
                         </div>
-                        <button id="btn-${k}" class="px-3 py-1 rounded text-xs font-bold bg-indigo-600 text-white" onclick="window.buyUpgrade('${k}')">
+                        <button id="btn-${k}" class="px-3 py-1 rounded text-xs font-bold btn-push" onclick="window.buyUpgrade('${k}')">
                             Loading...
                         </button>
                     </div>`;
@@ -417,7 +671,7 @@
                 
                 if (btn) {
                     btn.innerText = format(cost);
-                    btn.className = `px-3 py-1 rounded text-xs font-bold transition-colors ${canAfford ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'bg-slate-700 text-gray-500 cursor-not-allowed'}`;
+                    btn.className = `px-3 py-1 rounded text-xs font-bold btn-push transition-colors ${canAfford ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'bg-slate-700 text-gray-500 cursor-not-allowed'}`;
                     btn.disabled = !canAfford;
                 }
                 if (lvlLabel) lvlLabel.innerText = `Lv${lvl}`;
@@ -430,39 +684,66 @@
             document.getElementById('disp-gs').innerText = format(state.gs);
             document.getElementById('disp-cps').innerText = format(getCPS());
             
-            document.getElementById('val-sd-gain').innerText = format(Math.floor(state.ce / 1000000));
+            const relicMults = getRelicMultipliers();
+            const prestigeGain = Math.floor((state.ce / 1000000) * relicMults.prestige);
+            document.getElementById('val-sd-gain').innerText = `+${format(prestigeGain)}`;
 
             updateShopButtons();
             
+            // Pet Render
             const petGrid = document.getElementById('pet-grid');
             petGrid.innerHTML = '';
             PETS.forEach(p => {
-                const unlocked = (p.id === 0) || (p.id === 1 && state.sd >= 10) || (p.id === 2 && state.gs >= 1);
+                const sdReq = p.id >= 4 ? PETS[p.id].req.match(/\d+/g)[0] : (p.id === 1 ? 10 : 0);
+                const gsReq = p.id === 2 ? 1 : 0;
+                const unlocked = (p.id === 0) || (state.sd >= sdReq) || (state.gs >= gsReq);
                 const active = state.pet.id === p.id;
+                
+                const petLevelDisplay = active ? `Lv${state.pet.lvl}` : (p.id > 0 ? p.req : 'Active');
+
                 petGrid.innerHTML += `
-                    <div class="bg-slate-800 p-3 rounded border ${active ? 'border-green-500' : (unlocked ? 'border-slate-600' : 'border-red-900 opacity-50')} cursor-pointer" onclick="window.equipPet(${p.id})">
-                        <div class="font-bold ${unlocked ? 'text-white' : 'text-gray-500'}">${p.name}</div>
-                        <div class="text-xs text-gray-400">${unlocked ? p.desc : p.req}</div>
-                        ${active ? '<div class="text-xs text-green-400 mt-1">ACTIVE</div>' : ''}
+                    <div class="bg-slate-800 p-3 rounded border ${active ? 'border-green-500 shadow-md' : (unlocked ? 'border-slate-600 hover:border-indigo-400' : 'border-red-900 opacity-50')} ${unlocked ? 'cursor-pointer' : 'cursor-default'}" onclick="${unlocked ? `window.equipPet(${p.id})` : ''}">
+                        <div class="font-bold text-sm ${unlocked ? 'text-white' : 'text-gray-500'}">${p.name}</div>
+                        <div class="text-xs text-gray-400">${p.desc}</div>
+                        <div class="text-xs font-mono mt-2">${active ? `<span class="text-green-400">ACTIVE: ${petLevelDisplay}</span>` : `<span class="text-indigo-400">${p.req}</span>`}</div>
                     </div>
                 `;
             });
             
+            // Relic Render
             const relicGrid = document.getElementById('relic-grid');
             relicGrid.innerHTML = '';
             RELICS.forEach(r => {
                 const unlocked = state.relics.includes(r.id);
                 relicGrid.innerHTML += `
-                    <div class="bg-slate-800 p-3 rounded border ${unlocked ? 'border-yellow-500' : 'border-slate-700 opacity-50'}">
+                    <div class="bg-slate-800 p-3 rounded border ${unlocked ? 'border-yellow-500 shadow-lg' : 'border-slate-700 opacity-50'}">
                         <div class="text-2xl text-center mb-1">${r.icon}</div>
                         <div class="font-bold text-xs text-center ${unlocked ? 'text-white' : 'text-gray-500'}">${unlocked ? r.name : '???'}</div>
                         <div class="text-[10px] text-center text-gray-400">${unlocked ? r.desc : r.hint}</div>
                     </div>
                 `;
             });
+            
+            // Relic Drop simulation (Simple random drop on update)
+            if(Math.random() < 0.001) { // 0.1% chance per tick (10 times per second)
+                const availableRelics = RELICS.filter(r => !state.relics.includes(r.id));
+                if (availableRelics.length > 0) {
+                    const droppedRelic = availableRelics[Math.floor(Math.random() * availableRelics.length)];
+                    // Only drop if requirement is met (Simple check for now)
+                    const requiredSd = parseInt(droppedRelic.hint.match(/\d+/g) || [0])[0];
+                    if (state.sd >= requiredSd) { 
+                        state.relics.push(droppedRelic.id);
+                        showFloatMessage("Relic Found!", `${droppedRelic.name} unlocked!`, '#fbbf24');
+                        saveGame();
+                    }
+                }
+            }
         }
 
         function format(num) {
+            if (num >= 1e18) return (num / 1e18).toFixed(2) + "E";
+            if (num >= 1e15) return (num / 1e15).toFixed(2) + "P";
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + "T";
             if (num >= 1e9) return (num / 1e9).toFixed(2) + "B";
             if (num >= 1e6) return (num / 1e6).toFixed(2) + "M";
             if (num >= 1e3) return (num / 1e3).toFixed(2) + "K";
@@ -480,15 +761,15 @@
             setTimeout(() => el.remove(), 800);
         }
 
-        window.setTab = (id) => {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`tab-${id}`).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById(`nav-${id}`).classList.add('active');
-            
-            // Extra logic for dynamic tab updates
-            if(id === 'leaderboard') simulateLeaderboard();
-        };
+        function showFloatMessage(title, text, color) {
+            const el = document.createElement('div');
+            el.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 glass-panel p-4 rounded-lg z-[200] text-center';
+            el.style.color = color;
+            el.innerHTML = `<p class="text-xl font-bold">${title}</p><p class="text-sm text-gray-300">${text}</p>`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 2500);
+        }
+
         
         function simulateLeaderboard() {
             const list = document.getElementById('leaderboard-list');
@@ -513,39 +794,113 @@
         }
 
         // --- TUTORIAL ---
+        function clearHighlights() {
+            document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+        }
+
         function startTutorial() {
             state.tutorial = 1;
-            showTut("System initialized.<br>Tap the Core to generate Cosmic Energy.");
+            document.getElementById('core-btn').classList.add('tutorial-highlight');
+            // Step 1: Click the Core (Interaction: CLICK)
+            showTut("Welcome, Pilot. Click the highlighted <b class='text-indigo-400'>Core</b> repeatedly to generate Cosmic Energy (CE).", false);
         }
         
-        window.nextTutorial = () => {
-            state.tutorial++;
-            if(state.tutorial === 2) {
-                window.setTab('upgrades');
-                showTut("Excellent.<br>Now purchase your first upgrade from the Shop.");
+        // continueInteraction determines if the step was completed by clicking the game element (true) or clicking the modal's CONTINUE button (false)
+        window.nextTutorial = (continueInteraction = false) => {
+            
+            clearHighlights();
+
+            // 1. Logic to advance counter if interaction was successful
+            if (continueInteraction) {
+                state.tutorial++;
             }
-            if(state.tutorial === 3) {
-                 document.getElementById('tutorial-overlay').classList.add('hidden');
-                 document.getElementById('tutorial-overlay').classList.remove('flex');
-                 state.tutorial = 99; 
-                 saveGame();
+            
+            // 2. Step progression logic
+            if (state.tutorial === 2) {
+                // Step 2: Go to Shop (Interaction: NAV CLICK)
+                document.getElementById('nav-upgrades').classList.add('tutorial-highlight');
+                window.setTab('home'); // Ensure we are on home tab before asking to switch
+                showTut("Excellent. Now click the highlighted <b class='text-pink-400'>Shop (🛒)</b> tab to see your first available upgrades.", false);
+            } else if (state.tutorial === 3) {
+                // Step 3: Buy upgrade (Interaction: BUTTON CLICK)
+                const firstUpgradeButton = document.getElementById('btn-c1');
+                if (firstUpgradeButton) firstUpgradeButton.classList.add('tutorial-highlight');
+                window.setTab('upgrades'); // Ensure view is on correct tab
+                showTut("Purchase the highlighted <b class='text-pink-400'>Focus Lens</b> to increase your Click Power. You need at least 15 CE.", false);
+            } else if (state.tutorial === 4) {
+                // Step 4: Go to Pets (Interaction: NAV CLICK)
+                document.getElementById('nav-pets').classList.add('tutorial-highlight');
+                window.setTab('upgrades'); // Ensure we are on an other tab before asking to switch
+                showTut("Every journey needs a partner. Click the highlighted <b class='text-teal-400'>Pets (👾)</b> tab. Equip your Star Wisp to complete this step.", false);
+            } else if (state.tutorial === 5) {
+                // Step 5: Go to Relics (Interaction: NAV CLICK)
+                document.getElementById('nav-relics').classList.add('tutorial-highlight');
+                window.setTab('pets'); // Ensure we are on an other tab before asking to switch
+                showTut("The <b class='text-amber-400'>Relics (🏺)</b> tab houses Ancient Artifacts. They drop randomly as you play and offer massive bonuses. Click the tab to check it out!", false);
+            } else if (state.tutorial === 6) {
+                // Step 6: Go to Prestige (Interaction: NAV CLICK)
+                document.getElementById('nav-prestige').classList.add('tutorial-highlight');
+                window.setTab('relics'); // Ensure we are on an other tab before asking to switch
+                showTut("When your progress slows, head to <b class='text-purple-400'>Prestige (✨)</b>. Rebirth at 1M CE to gain <b class='text-purple-400'>Stardust</b>. Click the tab.", false);
+            } else if (state.tutorial === 7) {
+                // Step 7: Final message before closing. Advance counter to 8 first.
+                // The next click of the CONTINUE button will hit the closing logic (state.tutorial === 8).
+                state.tutorial = 8; 
+                window.setTab('prestige'); 
+                showTut("You have completed the basic training! Click <b class='text-green-400'>CONTINUE</b> to close the tutorial and begin.", true);
+            } else if (state.tutorial === 8) {
+                // Step 8: FINAL CLOSE LOGIC triggered by the CONTINUE click on step 7's modal
+                // FIX: This code now correctly runs after the final "CONTINUE" click.
+                document.getElementById('tutorial-overlay').classList.add('hidden');
+                document.getElementById('tutorial-overlay').classList.remove('flex');
+                state.tutorial = 99; // Mark as complete
+                saveGame();
+                showFloatMessage("Tutorial Complete!", "You are now ready to explore the Cosmic Universe!", '#22d3ee');
+            } else {
+                // If continueInteraction was false, and we didn't match a step, increment the counter here 
+                // to avoid infinite loops when clicking the modal's continue button on non-interaction steps.
+                if(!continueInteraction) {
+                     state.tutorial++;
+                     if(state.tutorial > 99) state.tutorial = 99; // Safety cap
+                }
             }
         }
         
-        function showTut(text) {
+        // showTut now takes a boolean to control the visibility of the "CONTINUE" button
+        function showTut(text, showContinueButton) {
             const overlay = document.getElementById('tutorial-overlay');
             overlay.classList.remove('hidden');
             overlay.classList.add('flex');
+
             document.getElementById('tut-text').innerHTML = text;
+            
+            const continueBtn = document.getElementById('tut-continue-btn');
+            const actionText = document.getElementById('tut-action-text');
+
+            if (showContinueButton) {
+                continueBtn.classList.remove('hidden');
+                actionText.classList.add('hidden');
+                // The button now calls nextTutorial(false). The logic handles the increment on the next call.
+                continueBtn.onclick = () => nextTutorial(false); 
+            } else {
+                continueBtn.classList.add('hidden');
+                actionText.classList.remove('hidden');
+                actionText.innerText = "Please interact with the highlighted element in the game to proceed.";
+            }
         }
 
         // --- SAVE/LOAD LOCALSTORAGE ---
-        const SAVE_KEY = 'cosmic_idle_save_v1';
+        const SAVE_KEY = 'cosmic_idle_save_v2'; 
 
         function saveGame() {
-            localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-            const status = document.getElementById('save-status');
-            if(status) status.innerText = 'Saved.';
+            try {
+                localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+                const status = document.getElementById('save-status');
+                if(status) status.innerText = 'Saved.';
+                setTimeout(() => status.innerText = 'Offline Ready', 1000);
+            } catch(e) {
+                console.error("Could not save to localStorage:", e);
+            }
         }
 
         function loadGame() {
@@ -553,26 +908,64 @@
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
-                    state = { ...state, ...parsed };
-                } catch(e) { console.error("Save corrupt"); }
-            } else {
+                    // Merge and ensure all new properties exist (like 'tutorial')
+                    state = { ...state, ...parsed, upgrades: { ...state.upgrades, ...parsed.upgrades } };
+                } catch(e) { console.error("Save corrupt. Starting new game."); }
+            } 
+            
+            // Start tutorial if new game, or resume if incomplete
+            if (state.tutorial === 0) {
                 startTutorial();
+            } else if (state.tutorial > 0 && state.tutorial < 8) {
+                // If they reloaded mid-tutorial, try to jump back to the correct step
+                nextTutorial(false); 
             }
             updateUI();
         }
 
-        // --- INIT ---
-        function init() {
+        // --- INITIALIZATION ---
+
+        // Renamed and isolated the core app startup logic
+        function loadGameDataAndStartApp() {
             initShop();
             loadGame();
 
+            // Passive income loop
             setInterval(() => {
                 state.ce += getCPS() / 10;
                 updateUI();
             }, 100);
 
+            // Auto-save loop
             setInterval(saveGame, 5000);
+            
+            // Set initial tab 
             window.setTab('home');
+
+            // Generate icon asynchronously
+            generateAnimeIcon();
+        }
+
+        // NEW: Handles the loading screen transition
+        function init() {
+            const loadingScreen = document.getElementById('app-loading-screen');
+            const body = document.body;
+            
+            // 1. Simulate a loading delay (e.g., 2000ms)
+            setTimeout(() => {
+                // 2. Start the application logic
+                loadGameDataAndStartApp();
+                
+                // 3. Fade out the loading screen
+                loadingScreen.style.opacity = '0';
+                
+                // 4. Wait for the transition and then remove it entirely
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    body.classList.add('loaded'); // Reveal the body content
+                }, 500); 
+                
+            }, 2000); // Simulated loading time
         }
 
         window.onload = init;
