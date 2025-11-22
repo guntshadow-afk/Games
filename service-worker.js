@@ -1,6 +1,6 @@
 // Service Worker for Caching - Required for PWA install prompt
 
-const CACHE_NAME = 'cosmic-gem-clicker-v2';
+const CACHE_NAME = 'cosmic-gem-clicker-v4';
 // List essential files to cache for offline use
 const urlsToCache = [
     '/',
@@ -14,8 +14,6 @@ self.addEventListener('install', (event) => {
         caches.open(CACHE_NAME)
             .then((cache) => {
                 console.log('Service Worker: Opened cache. Caching essential files.');
-                // Note: Caching external resources (like Firebase/Tailwind CDNs) is generally blocked
-                // We cache the local PWA files here.
                 return cache.addAll(urlsToCache).catch(err => {
                     console.warn('Service Worker: Failed to cache some resources (CDNs likely):', err);
                 });
