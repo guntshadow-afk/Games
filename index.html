@@ -2,682 +2,973 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosmic Universal Idle Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cosmic Universal Idle</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=JetBrains+Mono:wght==400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+
     <style>
-        /* ======================================================= */
-        /* CSS: DARK PASTEL ANIME THEME & RESPONSIVENESS (10, 12)  */
-        /* ======================================================= */
         :root {
-            --color-bg: #1a1a2e; /* Dark Blue/Purple */
-            --color-primary: #ff41a1; /* Pink/Magenta */
-            --color-secondary: #00f5d4; /* Neon Teal */
-            --color-text: #e0e0f0;
-            --color-accent: #8338ec; /* Violet */
-            --font-main: 'Arial', sans-serif;
+            --bg-deep: #020204;
+            --bg-panel: rgba(20, 25, 40, 0.95);
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --accent: #22d3ee;
+            --border: rgba(255, 255, 255, 0.1);
         }
 
         body {
-            background-color: var(--color-bg);
-            color: var(--color-text);
-            font-family: var(--font-main);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            min-height: 100vh;
-            flex-direction: column;
-            overflow-x: hidden;
-            /* Animated background stars (10) */
-            background-image: radial-gradient(white, rgba(255, 255, 255, 0.2) 2px, transparent 40px),
-                              radial-gradient(white, rgba(255, 255, 255, 0.15) 1px, transparent 30px);
-            background-size: 500px 500px, 300px 300px;
-            animation: stars-move 120s linear infinite;
-        }
-
-        @keyframes stars-move {
-            from { background-position: 0 0, 0 0; }
-            to { background-position: 500px 500px, -300px -300px; }
-        }
-
-        /* UI/UX (8, 9) */
-        .header {
-            background-color: #2c2c54;
-            padding: 10px 20px;
-            text-align: center;
-            border-bottom: 2px solid var(--color-primary);
-        }
-
-        .resource-display h1 {
-            font-size: 3em; /* Large resource text (9) */
-            color: var(--color-secondary);
-            margin: 0;
-            text-shadow: 0 0 10px var(--color-secondary);
-        }
-
-        .sidebar {
-            width: 80px;
-            background-color: #2c2c54;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 20px;
-            border-right: 2px solid var(--color-accent);
-        }
-
-        .tab-button {
-            background: none;
-            border: none;
-            color: var(--color-text);
-            padding: 15px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            font-size: 1.5em;
-            transition: color 0.2s, background-color 0.2s;
-            border-radius: 5px;
-        }
-
-        .tab-button:hover, .tab-button.active {
-            color: var(--color-primary);
-            background-color: #3f3f77;
-        }
-
-        .game-container {
-            display: flex;
-            flex-grow: 1;
-        }
-
-        .content {
-            flex-grow: 1;
-            padding: 20px;
-            display: none; /* All content hidden by default */
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .content.active {
-            display: flex;
-        }
-
-        /* Primary Action Button (1) */
-        #primary-action-button {
-            width: 250px;
-            height: 250px;
-            border-radius: 50%;
-            background-color: var(--color-primary);
-            color: var(--color-bg);
-            font-size: 2em;
-            border: 5px solid var(--color-secondary);
-            cursor: pointer;
-            transition: transform 0.1s;
-            box-shadow: 0 0 20px var(--color-primary);
-            margin-top: 50px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            user-select: none;
-        }
-
-        #primary-action-button:active {
-            transform: scale(0.95); /* Click animation (1) */
-        }
-
-        /* Shop Styles */
-        .upgrade-card {
-            background-color: #2c2c54;
-            border: 1px solid var(--color-accent);
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 400px;
-        }
-
-        .upgrade-card button {
-            background-color: var(--color-secondary);
-            color: var(--color-bg);
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.2s;
-        }
-
-        .upgrade-card button:hover:not(:disabled) {
-            background-color: #00c7b2;
-        }
-
-        .upgrade-card button:disabled {
-            background-color: #555; /* Auto-buy prevention (7) */
-            cursor: not-allowed;
-        }
-
-        .floating-text {
-            position: absolute;
-            font-size: 1.5em;
-            color: var(--color-primary);
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-deep);
+            color: #e2e8f0;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            /* Hide content initially to prevent FOUC before loading screen takes over */
             opacity: 0;
-            user-select: none;
-            pointer-events: none;
-            animation: floatUp 1s ease-out forwards;
-            text-shadow: 0 0 5px var(--color-primary);
+            transition: opacity 0.5s;
+        }
+        
+        body.loaded {
+            opacity: 1;
         }
 
-        @keyframes floatUp {
-            from { transform: translateY(0); opacity: 1; }
-            to { transform: translateY(-50px); opacity: 0; }
+        /* --- UI COMPONENTS --- */
+        .glass-panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
-        /* Status Bar */
-        .status-bar {
-            padding: 10px;
-            background-color: #111;
-            color: #999;
-            font-size: 0.8em;
-            text-align: right;
+        .btn-push {
+            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 3px solid rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
         }
+        .btn-push:active:not(:disabled) {
+            transform: translateY(2px);
+            border-bottom-width: 0px;
+            margin-top: 2px;
+        }
+        .btn-push:disabled { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; border-bottom-width: 0px;}
+
+        /* Main Clicker */
+        .core-btn {
+            width: 220px; height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, #6366f1, #1e1b4b);
+            box-shadow: 0 0 50px rgba(99, 102, 241, 0.3), inset 0 0 20px rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 5rem; cursor: pointer; 
+            position: relative; z-index: 10;
+            transition: transform 0.05s;
+            border: 4px solid rgba(99, 102, 241, 0.3);
+        }
+        .core-btn:active { transform: scale(0.92); }
+        
+        /* Floating Text */
+        .float-txt {
+            position: absolute; pointer-events: none; font-weight: 900; font-size: 1.2rem;
+            animation: floatUp 1s ease-out forwards; z-index: 50; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            color: #fff;
+        }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(1.5); opacity: 0; } }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Nav */
+        .nav-item { @apply flex items-center p-3 rounded-lg cursor-pointer transition-colors text-gray-400 hover:text-white hover:bg-white/5 border border-transparent; }
+        .nav-item.active { @apply bg-indigo-900/40 text-indigo-300 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.15)]; }
+
+        /* Highlight for Tutorial */
+        .tutorial-highlight {
+            position: relative;
+            z-index: 100;
+            box-shadow: 0 0 0 4px #fbbf24, 0 0 30px rgba(251, 191, 36, 0.8);
+            border-color: #fbbf24 !important;
+            animation: pulse-highlight 1s infinite;
+            pointer-events: auto !important;
+        }
+        @keyframes pulse-highlight { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        
+        /* Tutorial overlay background: Blur removed and opacity slightly reduced */
+        .tutorial-overlay-bg {
+            background-color: rgba(0,0,0,0.7); 
+            backdrop-filter: blur(0px); /* REMOVED BLUR */
+            -webkit-backdrop-filter: blur(0px); /* REMOVED BLUR */
+            pointer-events: none; 
+        }
+
+        /* Modal positioning to avoid blocking the Core */
+        #tut-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            /* Shift slightly off center to avoid blocking the core button */
+            margin-left: 200px; 
+        }
+
+        /* Responsive shift for mobile */
+        @media (max-width: 768px) {
+            #tut-modal {
+                margin-left: 0;
+                top: 75%; /* Push it lower */
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #icon-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* --- NEW LOADING SCREEN STYLES --- */
+        #app-loading-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, #0a0e1c 0%, #020204 100%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(0.3); opacity: 0.8; }
+            50% { transform: scale(1); opacity: 0; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+
+        .cosmic-loader {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin-bottom: 2rem;
+        }
+
+        .cosmic-loader .core-star {
+            width: 50px;
+            height: 50px;
+            background: #ffcc00;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 30px #ffcc00, 0 0 50px #ff00ff;
+            animation: spin 6s linear infinite reverse;
+        }
+        
+        .cosmic-loader .pulse-wave {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid rgba(99, 102, 241, 0.5); /* Primary color */
+            border-radius: 50%;
+            animation: pulse-ring 2s infinite ease-out;
+        }
+
+        .cosmic-loader .pulse-wave:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
     </style>
 </head>
-<body>
-
-    <div class="header">
-        <div class="resource-display">
-            <h2>Cosmic Energy:</h2>
-            <h1 id="energy-display">0</h1>
+<!-- Initial opacity is 0 on body, will be set to 1 when loading screen is done -->
+<body class="flex flex-col md:flex-row">
+    
+    <!-- NEW: Loading Screen (Z-index 1000) -->
+    <div id="app-loading-screen">
+        <div class="cosmic-loader">
+            <div class="pulse-wave"></div>
+            <div class="pulse-wave"></div>
+            <div class="core-star"></div>
         </div>
-        <p>
-            <span style="color: var(--color-primary);">CPC: <span id="cpc-rate">1</span></span> | 
-            <span style="color: var(--color-secondary);">CPS: <span id="cps-rate">0</span></span>
-        </p>
+        <p class="text-3xl font-bold text-indigo-400">COSMIC INIT...</p>
+        <p class="text-sm text-gray-500 mt-2">Preparing the Universal Interface</p>
     </div>
 
-    <div class="game-container">
-        <div class="sidebar">
-            <button class="tab-button active" onclick="showTab('home', this)" title="Core">🏠</button>
-            <button class="tab-button" onclick="showTab('shop', this)" title="Shop">🛒</button>
-            <button class="tab-button" onclick="showTab('pets', this)" title="Pets">👾</button>
-            <button class="tab-button" onclick="showTab('prestige', this)" title="Prestige">🌠</button>
-            <button class="tab-button" onclick="showTab('stats', this)" title="Stats">🧮</button>
+    <!-- TUTORIAL OVERLAY (Fixed: pointer-events-none) -->
+    <div id="tutorial-overlay" class="fixed inset-0 z-[200] hidden tutorial-overlay-bg flex-col items-center justify-center">
+        <!-- Tutorial Modal (Fixed: pointer-events-auto) -->
+        <div id="tut-modal" class="glass-panel p-8 max-w-md text-center border-2 border-yellow-400 shadow-2xl pointer-events-auto">
+            <div class="text-5xl mb-4">🤖</div>
+            <h3 class="text-2xl font-bold text-yellow-400 mb-2" id="tut-title">System Online</h3>
+            <p class="text-gray-300 mb-6 leading-relaxed" id="tut-text">Initializing pilot interface...</p>
+            <button id="tut-continue-btn" class="btn-push bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg" onclick="nextTutorial()">CONTINUE</button>
+            <p id="tut-action-text" class="text-sm mt-4 text-yellow-300 hidden">Please interact with the highlighted element in the game.</p>
         </div>
+    </div>
 
-        <div id="home" class="content active">
-            <button id="primary-action-button" title="Generate Cosmic Energy">
-                <span style="font-size: 0.5em; opacity: 0.8;">ATOM CORE</span>
-                TAP TO GENERATE
+    <!-- SIDEBAR (Desktop) / BOTTOM BAR (Mobile) -->
+    <nav class="md:w-64 bg-[#080b14] border-r border-white/10 flex-shrink-0 flex flex-col z-50 md:relative fixed bottom-0 w-full md:h-full h-auto border-t md:border-t-0">
+        
+        <!-- NEW App Icon and Title -->
+        <div class="p-6 hidden md:block border-b border-white/5 text-center">
+            <div id="app-icon-container" class="w-20 h-20 mx-auto mb-2 relative">
+                <!-- Icon Spinner (Visible while loading) -->
+                <div id="icon-spinner" class="absolute inset-0 flex items-center justify-center text-xs text-indigo-400 border-2 border-dashed border-indigo-400/50 rounded-xl">
+                    <span class="animate-spin text-3xl">⚛️</span>
+                </div>
+                <!-- App Icon (Hidden until loaded) -->
+                <img id="app-icon" src="" alt="App Icon" class="w-full h-full rounded-xl object-cover shadow-lg border-2 border-indigo-400/50 hidden">
+            </div>
+            <h1 class="text-xl font-black tracking-tight text-white">COSMIC<span class="text-indigo-500">IDLE</span></h1>
+        </div>
+        
+        <!-- Nav Links -->
+        <div class="flex md:flex-col overflow-x-auto md:overflow-visible p-2 md:p-4 gap-2 no-scrollbar" id="nav-container">
+            <button id="nav-home" class="nav-item active" onclick="window.setTab('home')">
+                <span class="text-xl mr-3">🌌</span> <span class="hidden md:inline font-bold">Core</span>
             </button>
-            <div id="mascot-display" style="margin-top: 30px; font-size: 2em; color: var(--color-accent);">
-                ⭐ Mascot Helper ⭐
+            <button id="nav-upgrades" class="nav-item" onclick="window.setTab('upgrades')">
+                <span class="text-xl mr-3">🛒</span> <span class="hidden md:inline font-bold">Shop</span>
+            </button>
+            <button id="nav-pets" class="nav-item" onclick="window.setTab('pets')">
+                <span class="text-xl mr-3">👾</span> <span class="hidden md:inline font-bold">Pets</span>
+            </button>
+            <button id="nav-relics" class="nav-item" onclick="window.setTab('relics')">
+                <span class="text-xl mr-3">🏺</span> <span class="hidden md:inline font-bold">Relics</span>
+            </button>
+            <button id="nav-prestige" class="nav-item" onclick="window.setTab('prestige')">
+                <span class="text-xl mr-3">✨</span> <span class="hidden md:inline font-bold">Prestige</span>
+            </button>
+            <button id="nav-leaderboard" class="nav-item" onclick="window.setTab('leaderboard')">
+                <span class="text-xl mr-3">🏆</span> <span class="hidden md:inline font-bold">Ranks</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-grow relative h-full overflow-hidden flex flex-col">
+        
+        <!-- TOP BAR -->
+        <div class="glass-panel m-2 md:m-4 p-4 flex flex-wrap justify-between items-center z-40 shrink-0">
+            <div>
+                <p class="text-[10px] text-indigo-400 uppercase tracking-widest font-bold">Cosmic Energy</p>
+                <p class="text-3xl md:text-4xl font-black text-white font-mono tracking-tight" id="disp-ce">0</p>
+            </div>
+            <div class="text-right hidden sm:block">
+                <p class="text-[10px] text-gray-500 uppercase">Income Rate</p>
+                <p class="text-lg font-bold text-emerald-400 font-mono" id="disp-cps">0/s</p>
+            </div>
+            <div class="flex gap-4 text-center">
+                <div class="bg-purple-900/30 px-3 py-1 rounded border border-purple-500/30">
+                    <p class="text-[10px] text-purple-300 font-bold">STARDUST</p>
+                    <p class="text-lg font-bold text-white" id="disp-sd">0</p>
+                </div>
+                <div class="bg-teal-900/30 px-3 py-1 rounded border border-teal-500/30">
+                    <p class="text-[10px] text-teal-300 font-bold">SHARDS</p>
+                    <p class="text-lg font-bold text-white" id="disp-gs">0</p>
+                </div>
             </div>
         </div>
 
-        <div id="shop" class="content">
-            <h2>🛒 Shop & Upgrades</h2>
-            <p style="color: var(--color-secondary);">Increase your Cosmic Energy production!</p>
-
-            <h3 style="color: var(--color-primary);">CE Per Click (CPC) Upgrades (4)</h3>
-            <div id="cpc-upgrades">
-                </div>
+        <!-- SCROLLABLE CONTENT -->
+        <div class="flex-grow overflow-y-auto p-4 pb-24 md:pb-4" id="main-scroll">
             
-            <h3 style="color: var(--color-secondary);">CE Per Second (CPS) Upgrades (5)</h3>
-            <div id="cps-upgrades">
+            <!-- TAB: HOME -->
+            <div id="tab-home" class="tab-content h-full flex flex-col items-center justify-center min-h-[500px]">
+                <button id="core-btn" class="core-btn mt-8 hover:scale-105 active:scale-95 transition-transform" onclick="clickCore(event)">
+                    <span class="text-6xl drop-shadow-lg">⚛️</span>
+                </button>
+                <p class="mt-8 text-gray-400 text-sm animate-pulse">Tap to generate energy</p>
+                <p class="mt-2 text-xs text-gray-600 font-mono" id="save-status">System Ready</p>
+            </div>
+
+            <!-- TAB: SHOP -->
+            <div id="tab-upgrades" class="tab-content hidden max-w-3xl mx-auto space-y-6">
+                <div class="flex justify-between items-end border-b border-white/10 pb-4">
+                    <h2 class="text-3xl font-bold text-white">Upgrades</h2>
                 </div>
+                
+                <div class="glass-panel p-6">
+                    <h3 class="text-sm font-bold text-pink-400 uppercase tracking-widest mb-4">Click Power</h3>
+                    <div id="list-click" class="grid grid-cols-1 gap-3">
+                        <!-- Generated on Load -->
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6">
+                    <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-widest mb-4">Passive Income</h3>
+                    <div id="list-idle" class="grid grid-cols-1 gap-3">
+                         <!-- Generated on Load -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: PETS -->
+            <div id="tab-pets" class="tab-content hidden max-w-5xl mx-auto space-y-6">
+                <h2 class="text-3xl font-bold text-white mb-2">Companion Roster (Total: 54)</h2>
+                <div id="pet-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+
+            <!-- TAB: RELICS -->
+            <div id="tab-relics" class="tab-content hidden max-w-5xl mx-auto">
+                <h2 class="text-3xl font-bold text-amber-400 mb-2">Ancient Relics (Total: 53)</h2>
+                <p class="text-sm text-gray-400 mb-6">Rare artifacts that provide powerful global bonuses. Find them by playing!</p>
+                
+                <div id="relic-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Relics generated here -->
+                </div>
+            </div>
+
+            <!-- TAB: PRESTIGE -->
+            <div id="tab-prestige" class="tab-content hidden max-w-3xl mx-auto space-y-6">
+                <div class="glass-panel p-6 border-l-4 border-purple-500">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-bold text-white">Stardust Rebirth (Tier I)</h3>
+                        <div class="text-right">
+                            <p class="text-3xl font-black text-purple-400" id="val-sd-gain">+0</p>
+                            <p class="text-[10px] text-gray-500 uppercase">Potential Gain</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-4">Reset CE & Upgrades. Gain +5% Global Multiplier per Stardust.</p>
+                    <button class="btn-push w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-lg" onclick="doPrestige(1)">
+                        REBIRTH (Req: 1M CE)
+                    </button>
+                </div>
+                <!-- Tier 2 -->
+                 <div class="glass-panel p-6 border-l-4 border-teal-500 opacity-90 hover:opacity-100 transition">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-white">Galactic Shift (Tier II)</h3>
+                        <div class="text-right">
+                            <p class="text-2xl font-black text-teal-400" id="val-gs-gain">+0</p>
+                        </div>
+                    </div>
+                     <p class="text-sm text-gray-400 mb-4">Reset Stardust. Unlocks advanced automation.</p>
+                    <button class="btn-push w-full mt-4 bg-teal-700 text-white font-bold py-3 rounded-lg disabled:opacity-50" id="btn-prestige-2" onclick="doPrestige(2)">
+                        ASCEND (Req: 100 SD)
+                    </button>
+                </div>
+            </div>
+            
+            <!-- TAB: LEADERBOARD -->
+            <div id="tab-leaderboard" class="tab-content hidden max-w-3xl mx-auto">
+                <h2 class="text-3xl font-bold text-yellow-400 mb-4">Galactic Rankings</h2>
+                <div class="glass-panel p-4">
+                     <p class="text-gray-400 text-sm mb-4 text-center italic">Leaderboard requires cloud sync. You are currently in Local Mode.</p>
+                     <ul id="leaderboard-list" class="space-y-2 text-gray-300">
+                         <li class="text-center">Simulating local rankings...</li>
+                     </ul>
+                </div>
+            </div>
+
         </div>
+    </main>
 
-        <div id="pets" class="content">
-            <h2>👾 Mascot & Pet System (I)</h2>
-            <p>Level your Mascot to unlock powerful passive skills.</p>
-            <div id="mascot-info"></div>
-        </div>
+    <script type="module">
+        // --- IMAGE GENERATION FUNCTION (Anime Icon) ---
+        async function generateAnimeIcon() {
+            const prompt = "A high-resolution, anime-style icon for a cosmic universal idle game. The design should feature a cute, stylized black hole or a glowing atomic core, surrounded by sparkling stardust and a determined, chibi-style pilot character floating nearby. Digital art, vibrant colors, clean lines.";
+            const payload = { 
+                instances: { prompt: prompt }, 
+                parameters: { "sampleCount": 1 } 
+            };
+            const apiKey = ""; // Canvas provides this
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+            
+            const spinner = document.getElementById('icon-spinner');
+            const iconImg = document.getElementById('app-icon');
+            
+            let retries = 0;
+            const maxRetries = 5;
+            const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-        <div id="prestige" class="content">
-            <h2>🌠 Prestige Systems (G)</h2>
-            <p>Trade your Cosmic Energy for **Stardust** to gain permanent multipliers.</p>
-            <p style="color: var(--color-primary);">Stardust Gained: <span id="stardust-potential">0</span></p>
-            <button id="prestige-button" 
-                    style="background-color: var(--color-primary); color: var(--color-bg); padding: 10px 20px; border: none; border-radius: 5px;"
-                    onclick="startPrestige()">
-                INITIATE PRESTIGE
-            </button>
-        </div>
-        
-        <div id="stats" class="content">
-            <h2>🧮 Statistics Panel (K)</h2>
-            <div id="stats-panel"></div>
-        </div>
-    </div>
-    
-    <div class="status-bar">
-        Cloud Status: <span id="cloud-status">Connecting...</span> (Q) | 
-        Total Time Played: <span id="time-played">0s</span> (34)
-    </div>
+            while (retries < maxRetries) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
 
-    <script>
-        // ====================================================================
-        // JAVASCRIPT: CORE GAME LOGIC
-        // ====================================================================
-
-        const UPGRADE_DATA = {
-            cpc: {
-                focusLens: { name: 'Focus Lens', baseValue: 1, baseCost: 10, multiplier: 1.15, description: '+1 CE per click' },
-                quantumTap: { name: 'Quantum Tap', baseValue: 5, baseCost: 100, multiplier: 1.15, description: '+5 CE per click' },
-            },
-            cps: {
-                solarPanel: { name: 'Solar Panel', baseValue: 0.1, baseCost: 20, multiplier: 1.15, description: '+0.1 CE per second' },
-                asteroidMiner: { name: 'Asteroid Miner', baseValue: 1, baseCost: 200, multiplier: 1.15, description: '+1 CE per second' },
-            },
-        };
-
-        const INITIAL_GAME_STATE = {
-            // A. CORE RESOURCES & RATES
-            resources: {
-                cosmicEnergy: 0,
-                stardust: 0, 
-            },
-            rates: {
-                currentCEPerClick: 1,
-                currentCEPerSecond: 0,
-                globalMultiplier: 1.0, 
-            },
-            time: {
-                lastSaveTime: Date.now(),
-                totalTimePlayed: 0,
-                lifetimeStats: { totalTaps: 0, totalCEEarned: 0, totalPrestiges: 0 },
-            },
-            // B. UPGRADES (Initialized with 0 level/default cost)
-            upgrades: {
-                cpc: {
-                    focusLens: { level: 0, cost: 10 },
-                    quantumTap: { level: 0, cost: 100 },
-                },
-                cps: {
-                    solarPanel: { level: 0, cost: 20 },
-                    asteroidMiner: { level: 0, cost: 200 },
-                },
-            },
-            // G. PRESTIGE SYSTEM STATES
-            prestige: {
-                currentPrestigeCount: 0,
-                stardustBonusMultiplier: 1.0, 
-            },
-            // I. MASCOT SYSTEM (Simplified)
-            mascot: { level: 1, xp: 0 },
-            // F. EVENTS (Simplified)
-            events: { eventMultiplier: 1.0 },
-            // T. EXTRA SYSTEMS (Simplified)
-            extra: { luckyTapCritChance: 0.01 },
-        };
-
-        // Load or initialize GAME_STATE
-        let GAME_STATE = JSON.parse(localStorage.getItem('cosmicIdleSave')) || INITIAL_GAME_STATE;
-        // Merge in UPGRADE_DATA to fill out details/new upgrades after loading
-        for (const type in UPGRADE_DATA) {
-            for (const id in UPGRADE_DATA[type]) {
-                if (!GAME_STATE.upgrades[type][id]) {
-                    GAME_STATE.upgrades[type][id] = { level: 0, cost: UPGRADE_DATA[type][id].baseCost };
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    const result = await response.json();
+                    
+                    if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                        const base64Data = result.predictions[0].bytesBase64Encoded;
+                        const imageUrl = `data:image/png;base64,${base64Data}`;
+                        
+                        spinner.classList.add('hidden');
+                        iconImg.src = imageUrl;
+                        iconImg.classList.remove('hidden');
+                        return;
+                    } else {
+                        console.error("Image generation failed: No base64 data received.");
+                    }
+                } catch (error) {
+                    retries++;
+                    if (retries >= maxRetries) {
+                        console.error("Failed to generate icon after multiple retries:", error);
+                        spinner.innerHTML = 'Icon Failed ❌';
+                        return;
+                    }
+                    await delay(Math.pow(2, retries) * 1000); // Exponential backoff
                 }
             }
         }
+
+        // --- GAME DATA ---
+        const UPGRADES = {
+            c1: { name: 'Focus Lens', base: 15, mult: 1.5, power: 1, type: 'click' },
+            c2: { name: 'Quantum Tap', base: 250, mult: 1.6, power: 15, type: 'click' },
+            c3: { name: 'Singularity', base: 5000, mult: 1.8, power: 150, type: 'click' },
+            i1: { name: 'Solar Panel', base: 50, mult: 1.4, power: 1, type: 'idle' },
+            i2: { name: 'Auto-Miner', base: 500, mult: 1.5, power: 12, type: 'idle' },
+            i3: { name: 'Dyson Sphere', base: 10000, mult: 1.6, power: 200, type: 'idle' }
+        };
         
-        let lastUpdateTime = Date.now();
-        let energyDisplayElement;
-        let cpcRateElement;
-        let cpsRateElement;
-        const upgradeContainerCPC = document.getElementById('cpc-upgrades');
-        const upgradeContainerCPS = document.getElementById('cps-upgrades');
-        const clickButton = document.getElementById('primary-action-button');
+        // PETS and RELICS data... (omitted for brevity, assume the large arrays are here)
+        const PETS = [
+            { id: 0, name: "Star Wisp", bonus: 0.01, desc: "Your starting companion.", req: "None" },
+            { id: 1, name: "Void Golem", bonus: 0.05, desc: "+5% Global Multiplier", req: "Unlock at 10 Stardust" },
+            { id: 2, name: "Nebula Jelly", bonus: 0.10, desc: "+10% Global Multiplier", req: "Unlock at 1 Galaxy Shard" },
+            { id: 3, name: "Solar Phoenix", bonus: 0.25, desc: "+25% Global Multiplier", req: "Unlock at Prestige Tier 3" }
+        ];
+        
+        const PET_NAMES = ["Drone", "Bot", "Wisp", "Watcher", "Entity", "Hound", "Golem", "Jelly", "Phoenix", "Shade", "Lichen", "Spore"];
+        for (let i = 4; i < 54; i++) {
+            const nameIndex = i % PET_NAMES.length;
+            const sdReq = Math.floor(20 + Math.pow(i - 3, 1.8) * 4);
+            const bonus = 0.20 + (i - 3) * 0.05;
+            PETS.push({
+                id: i,
+                name: `Xenon ${PET_NAMES[nameIndex]} ${i-3}`,
+                bonus: bonus,
+                desc: `+${(bonus * 100).toFixed(1)}% Global Multiplier`,
+                req: `Unlock at ${sdReq} Stardust`
+            });
+        }
+        
+        const RELICS = [
+            { id: 'r1', name: "Quantum Dice", desc: "Small chance for 10x click", icon: "🎲", hint: "Random drop from clicking", multiplier: { click: 1 } },
+            { id: 'r2', name: "Time Hourglass", desc: "Idle gain +20%", icon: "⏳", hint: "Random drop from Auto-Clicker", multiplier: { idle: 1.2 } },
+            { id: 'r3', name: "Infinity Prism", desc: "Prestige gain +10%", icon: "💎", hint: "Unlocked at 100 Stardust", multiplier: { prestige: 1.1 } }
+        ];
 
-
-        // ====================================================================
-        // RATE CALCULATION & GAME LOGIC
-        // ====================================================================
-
-        /**
-         * Calculates all CE per Click and CE per Second rates (A, G).
-         */
-        function calculateAllRates() {
-            const state = GAME_STATE;
+        const ICONS = ["🔭", "🛰️", "⚙️", "🛡️", "🔑", "💡", "💰", "📜", "🔮", "🪨", "☄️", "🪐", "🌀", "🧩", "🧬", "🌟", "✨", "🌌", "🌠", "☀️"];
+        const EFFECT_TYPES = ['idle', 'click', 'prestige'];
+        
+        for (let i = 4; i < 54; i++) {
+            const sdReq = i * 25; 
+            const effectType = EFFECT_TYPES[i % 3];
+            const bonus = 1 + (i * 0.015);
+            const multObj = { [effectType]: bonus };
             
-            // --- STEP 1: GLOBAL MULTIPLIERS ---
-            let globalMult = 1.0;
-            globalMult *= state.prestige.stardustBonusMultiplier; // (24) Stardust Bonus
-            globalMult *= state.events.eventMultiplier; // (20) Event Boost
-            state.rates.globalMultiplier = globalMult;
-
-            // --- STEP 2: CALCULATE CPS ---
-            let baseCPS = 0;
-            for (const id in state.upgrades.cps) {
-                const data = UPGRADE_DATA.cps[id];
-                baseCPS += state.upgrades.cps[id].level * data.baseValue;
-            }
-            state.rates.currentCEPerSecond = baseCPS * globalMult;
-
-            // --- STEP 3: CALCULATE CPC ---
-            let baseCPC = 1; 
-            for (const id in state.upgrades.cpc) {
-                const data = UPGRADE_DATA.cpc[id];
-                baseCPC += state.upgrades.cpc[id].level * data.baseValue;
-            }
-            state.rates.currentCEPerClick = baseCPC * globalMult;
+            RELICS.push({
+                id: `r${i}`,
+                name: `Cosmic Shard ${i-3}`,
+                desc: `x${bonus.toFixed(2)} ${effectType.toUpperCase()} boost`,
+                icon: ICONS[i % ICONS.length],
+                hint: `Requires ${sdReq} Stardust to find`,
+                multiplier: multObj
+            });
         }
 
-        /**
-         * Handles manual click and grants CE (1).
-         */
-        function handlePrimaryAction(event) {
-            const state = GAME_STATE;
+
+        let state = {
+            ce: 0, sd: 0, gs: 0, uf: 0,
+            upgrades: { c1: 0, c2: 0, c3: 0, i1: 0, i2: 0, i3: 0 },
+            relics: [],
+            pet: { id: 0, lvl: 1, xp: 0 },
+            tutorial: 0, 
+            lastSave: Date.now()
+        };
+
+        // --- RELIC MULTIPLIER CALCULATOR ---
+        function getRelicMultipliers() {
+            let mults = { click: 1, idle: 1, prestige: 1 };
+            RELICS.forEach(r => {
+                // Check if relic is unlocked and active (r1 is always active if unlocked)
+                if (state.relics.includes(r.id)) {
+                    if (r.multiplier.click) mults.click *= r.multiplier.click;
+                    if (r.multiplier.idle) mults.idle *= r.multiplier.idle;
+                    if (r.multiplier.prestige) mults.prestige *= r.multiplier.prestige;
+                }
+            });
+            return mults;
+        }
+
+        // --- LOGIC ---
+        function getCPC() {
+            let base = 1;
+            base += state.upgrades.c1 * UPGRADES.c1.power;
+            base += state.upgrades.c2 * UPGRADES.c2.power;
+            base += state.upgrades.c3 * UPGRADES.c3.power;
             
-            let gain = state.rates.currentCEPerClick;
+            const sdMult = 1 + (state.sd * 0.05);
+            const petMult = 1 + (state.pet.lvl * PETS[state.pet.id].bonus);
+            const relicMults = getRelicMultipliers();
+
+            return base * sdMult * petMult * relicMults.click;
+        }
+
+        function getCPS() {
+            let base = 0;
+            base += state.upgrades.i1 * UPGRADES.i1.power;
+            base += state.upgrades.i2 * UPGRADES.i2.power;
+            base += state.upgrades.i3 * UPGRADES.i3.power;
             
-            // (T-12) Crit Check
-            let isCrit = Math.random() < state.extra.luckyTapCritChance;
-            if (isCrit) {
+            const sdMult = 1 + (state.sd * 0.05);
+            const relicMults = getRelicMultipliers();
+
+            return base * sdMult * relicMults.idle;
+        }
+
+        // --- ACTIONS ---
+        window.clickCore = (e) => {
+            let gain = getCPC();
+            
+            // Relic r1: Quantum Dice 10x click chance
+            if (state.relics.includes('r1') && Math.random() < 0.05) {
                 gain *= 10;
+                createFloat("CRIT!", e.clientX, e.clientY - 50, '#facc15');
+            }
+            
+            state.ce += gain;
+            state.pet.xp++;
+            
+            if(state.pet.xp > state.pet.lvl * 100) {
+                state.pet.lvl++;
+                state.pet.xp = 0;
+                showFloatMessage("Pet Level Up!", `Your Pet is now Level ${state.pet.lvl}!`, '#ec4899');
             }
 
-            state.resources.cosmicEnergy += gain;
-            
-            // Update Stats (34)
-            state.time.lifetimeStats.totalTaps += 1;
-            state.time.lifetimeStats.totalCEEarned += gain;
+            // Tutorial Step 1 completion
+            if(state.tutorial === 1) {
+                // User clicked the core, move to step 2
+                nextTutorial(true); 
+            }
 
-            // (1) Floating Text Feedback
-            showFloatingText(gain, event.clientX, event.clientY, isCrit);
-            
-            // (29) Mascot XP gain
-            state.mascot.xp += 1; 
+            createFloat(`+${format(gain)}`, e.clientX, e.clientY);
+            updateUI();
+        };
 
-            updateDisplay();
-        }
-
-        /**
-         * Purchases an upgrade (B, 6, 7).
-         */
-        function purchaseUpgrade(type, id) {
-            const stateUpgrade = GAME_STATE.upgrades[type][id];
-            const dataUpgrade = UPGRADE_DATA[type][id];
-            
-            // (6) Exponential Price Scaling: Cost = BaseCost * Multiplier^Level
-            const cost = Math.ceil(dataUpgrade.baseCost * Math.pow(dataUpgrade.multiplier, stateUpgrade.level));
-
-            if (GAME_STATE.resources.cosmicEnergy >= cost) {
-                GAME_STATE.resources.cosmicEnergy -= cost;
-                stateUpgrade.level += 1;
+        window.buyUpgrade = (id) => {
+            const u = UPGRADES[id];
+            const cost = Math.floor(u.base * Math.pow(u.mult, state.upgrades[id]));
+            if (state.ce >= cost) {
+                state.ce -= cost;
+                state.upgrades[id]++;
                 
-                calculateAllRates();
-                updateDisplay();
-            }
-        }
+                // Tutorial Step 3 completion (if they bought the first upgrade)
+                if(state.tutorial === 3 && id === 'c1') {
+                    nextTutorial(true); 
+                }
 
-        /**
-         * The core game loop (2).
-         */
-        function gameLoop(currentTime) {
-            const deltaTime = (currentTime - lastUpdateTime) / 1000;
-            lastUpdateTime = currentTime;
-            
-            // Apply passive gains (2)
-            const passiveGain = GAME_STATE.rates.currentCEPerSecond * deltaTime;
-            GAME_STATE.resources.cosmicEnergy += passiveGain;
-            
-            // Update total time played (34)
-            GAME_STATE.time.totalTimePlayed += deltaTime;
-
-            // (54) Autosave every 5 seconds
-            if (currentTime - GAME_STATE.time.lastSaveTime > 5000) {
+                updateUI();
+                updateShopButtons();
                 saveGame();
-                GAME_STATE.time.lastSaveTime = currentTime;
             }
-            
-            // Update Display elements
-            updateDisplay();
-            requestAnimationFrame(gameLoop);
-        }
+        };
+        
+        window.doPrestige = (tier) => {
+             if (tier === 1 && state.ce >= 1000000) {
+                 const relicMults = getRelicMultipliers();
+                 // Gain is base CE / 1M * Prestige Relic Multiplier
+                 state.sd += Math.floor((state.ce / 1000000) * relicMults.prestige); 
+                 state.ce = 0;
+                 state.upgrades = { c1: 0, c2: 0, c3: 0, i1: 0, i2: 0, i3: 0 };
+                 state.pet.lvl = 1;
+                 state.pet.xp = 0;
 
-        // ====================================================================
-        // UTILITIES & DISPLAY (C)
-        // ====================================================================
+                 // Tutorial Step 6 completion (Prestige) - This will be the FINAL step clicked by the user
+                 if(state.tutorial === 6) {
+                    // NOTE: This interaction is NOT the end of the tutorial, it only advances the step number
+                    nextTutorial(true); 
+                 }
 
-        /**
-         * Formats large numbers compactly (9).
-         */
-        function formatNumber(num) {
-            if (Math.abs(num) < 1000) return num.toFixed(num % 1 !== 0 ? 2 : 0);
-            
-            const suffixes = ["K", "M", "B", "T", "q", "Q", "S", "s", "O", "N", "D"];
-            let i = 0;
-            let absNum = Math.abs(num);
-            while (absNum >= 1000 && i < suffixes.length) {
-                absNum /= 1000;
-                i++;
-            }
-            return absNum.toFixed(2) + suffixes[i - 1];
-        }
-
-        /**
-         * Renders all dynamic UI elements (A, B, C).
-         */
-        function updateDisplay() {
-            const state = GAME_STATE;
-            const resources = state.resources;
-            
-            // Core Displays (A)
-            energyDisplayElement.textContent = formatNumber(resources.cosmicEnergy);
-            cpcRateElement.textContent = formatNumber(state.rates.currentCEPerClick);
-            cpsRateElement.textContent = formatNumber(state.rates.currentCEPerSecond);
-            document.getElementById('time-played').textContent = Math.round(state.time.totalTimePlayed) + 's';
-            
-            // Shop Updates (B)
-            renderUpgrades('cpc', upgradeContainerCPC);
-            renderUpgrades('cps', upgradeContainerCPS);
-            
-            // Prestige Updates (G)
-            const stardustPotential = calculateStardustGain();
-            document.getElementById('stardust-potential').textContent = formatNumber(stardustPotential);
-            const prestigeBtn = document.getElementById('prestige-button');
-            if (stardustPotential > 0) {
-                prestigeBtn.disabled = false;
-                prestigeBtn.style.opacity = 1;
-            } else {
-                prestigeBtn.disabled = true;
-                prestigeBtn.style.opacity = 0.5;
-            }
-            
-            // Stats Update (K)
-            document.getElementById('stats-panel').innerHTML = `
-                <p><strong>Total Taps:</strong> ${formatNumber(state.time.lifetimeStats.totalTaps)}</p>
-                <p><strong>Total CE Earned:</strong> ${formatNumber(state.time.lifetimeStats.totalCEEarned)}</p>
-                <p><strong>Total Prestiges:</strong> ${state.time.lifetimeStats.totalPrestiges}</p>
-                <p><strong>Current Stardust:</strong> ${formatNumber(state.resources.stardust)}</p>
-            `;
-
-            // Mascot Update (I)
-            document.getElementById('mascot-info').innerHTML = `
-                <p>Level: <strong>${state.mascot.level}</strong></p>
-                <p>XP: ${state.mascot.xp} / ${state.mascot.level * 100}</p>
-            `;
+                 updateUI();
+                 saveGame();
+             }
         }
         
-        /**
-         * Dynamically generates and updates upgrade buttons (B, 6, 7).
-         */
-        function renderUpgrades(type, container) {
-            container.innerHTML = '';
-            for (const id in UPGRADE_DATA[type]) {
-                const stateUpgrade = GAME_STATE.upgrades[type][id];
-                const dataUpgrade = UPGRADE_DATA[type][id];
-                const cost = Math.ceil(dataUpgrade.baseCost * Math.pow(dataUpgrade.multiplier, stateUpgrade.level));
-                const canAfford = GAME_STATE.resources.cosmicEnergy >= cost;
+        window.equipPet = (id) => {
+            const pet = PETS[id];
+            const sdReq = pet.id >= 4 ? PETS[p.id].req.match(/\d+/g)[0] : (pet.id === 1 ? 10 : 0);
+            const gsReq = pet.id === 2 ? 1 : 0;
+            const unlocked = (p.id === 0) || (state.sd >= sdReq) || (state.gs >= gsReq);
 
-                const card = document.createElement('div');
-                card.className = 'upgrade-card';
-                card.innerHTML = `
-                    <div>
-                        <strong>${dataUpgrade.name}</strong> (Lvl ${stateUpgrade.level})
-                        <p style="font-size: 0.9em; margin: 2px 0;">${dataUpgrade.description}</p>
-                    </div>
-                    <div>
-                        <button onclick="purchaseUpgrade('${type}', '${id}')" ${canAfford ? '' : 'disabled'}>
-                            Buy (${formatNumber(cost)} CE)
+            if (unlocked) {
+                state.pet.id = id;
+
+                // Tutorial Step 4 completion (Equip pet)
+                if(state.tutorial === 4) {
+                    // Check if they equipped a pet (id > 0 if they clicked the button)
+                    if(id === 0) { // Equip Star Wisp
+                        nextTutorial(true);
+                    }
+                }
+
+                updateUI();
+                saveGame();
+            }
+        }
+
+        // Overridden setTab to handle tutorial progression
+        window.setTab = (id) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${id}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`nav-${id}`).classList.add('active');
+            
+            // Check for tutorial progression when switching tabs
+            if(state.tutorial === 2 && id === 'upgrades') nextTutorial(true);
+            if(state.tutorial === 4 && id === 'pets') nextTutorial(true);
+            if(state.tutorial === 5 && id === 'relics') nextTutorial(true);
+            if(state.tutorial === 6 && id === 'prestige') nextTutorial(true);
+
+            if(id === 'leaderboard') simulateLeaderboard();
+        };
+
+        // --- UI ---
+        function initShop() {
+            const cList = document.getElementById('list-click');
+            const iList = document.getElementById('list-idle');
+            cList.innerHTML = ''; iList.innerHTML = '';
+            
+            for (const [k, v] of Object.entries(UPGRADES)) {
+                const html = `
+                    <div class="shop-item-card" id="card-${k}">
+                        <div>
+                            <div class="font-bold text-sm text-gray-200">${v.name} <span class="text-xs text-indigo-400" id="lvl-${k}">Lv0</span></div>
+                            <div class="text-xs text-gray-500">+${v.power} ${v.type.toUpperCase()}</div>
+                        </div>
+                        <button id="btn-${k}" class="px-3 py-1 rounded text-xs font-bold btn-push" onclick="window.buyUpgrade('${k}')">
+                            Loading...
                         </button>
+                    </div>`;
+                if (v.type === 'click') cList.innerHTML += html; else iList.innerHTML += html;
+            }
+        }
+
+        function updateShopButtons() {
+            for (const [k, v] of Object.entries(UPGRADES)) {
+                const lvl = state.upgrades[k];
+                const cost = Math.floor(v.base * Math.pow(v.mult, lvl));
+                const canAfford = state.ce >= cost;
+                
+                const btn = document.getElementById(`btn-${k}`);
+                const lvlLabel = document.getElementById(`lvl-${k}`);
+                
+                if (btn) {
+                    btn.innerText = format(cost);
+                    btn.className = `px-3 py-1 rounded text-xs font-bold btn-push transition-colors ${canAfford ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'bg-slate-700 text-gray-500 cursor-not-allowed'}`;
+                    btn.disabled = !canAfford;
+                }
+                if (lvlLabel) lvlLabel.innerText = `Lv${lvl}`;
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('disp-ce').innerText = format(state.ce);
+            document.getElementById('disp-sd').innerText = format(state.sd);
+            document.getElementById('disp-gs').innerText = format(state.gs);
+            document.getElementById('disp-cps').innerText = format(getCPS());
+            
+            const relicMults = getRelicMultipliers();
+            const prestigeGain = Math.floor((state.ce / 1000000) * relicMults.prestige);
+            document.getElementById('val-sd-gain').innerText = `+${format(prestigeGain)}`;
+
+            updateShopButtons();
+            
+            // Pet Render
+            const petGrid = document.getElementById('pet-grid');
+            petGrid.innerHTML = '';
+            PETS.forEach(p => {
+                const sdReq = p.id >= 4 ? PETS[p.id].req.match(/\d+/g)[0] : (p.id === 1 ? 10 : 0);
+                const gsReq = p.id === 2 ? 1 : 0;
+                const unlocked = (p.id === 0) || (state.sd >= sdReq) || (state.gs >= gsReq);
+                const active = state.pet.id === p.id;
+                
+                const petLevelDisplay = active ? `Lv${state.pet.lvl}` : (p.id > 0 ? p.req : 'Active');
+
+                petGrid.innerHTML += `
+                    <div class="bg-slate-800 p-3 rounded border ${active ? 'border-green-500 shadow-md' : (unlocked ? 'border-slate-600 hover:border-indigo-400' : 'border-red-900 opacity-50')} ${unlocked ? 'cursor-pointer' : 'cursor-default'}" onclick="${unlocked ? `window.equipPet(${p.id})` : ''}">
+                        <div class="font-bold text-sm ${unlocked ? 'text-white' : 'text-gray-500'}">${p.name}</div>
+                        <div class="text-xs text-gray-400">${p.desc}</div>
+                        <div class="text-xs font-mono mt-2">${active ? `<span class="text-green-400">ACTIVE: ${petLevelDisplay}</span>` : `<span class="text-indigo-400">${p.req}</span>`}</div>
                     </div>
                 `;
-                container.appendChild(card);
-            }
-        }
-        
-        /**
-         * Creates the animated floating text feedback (1).
-         */
-        function showFloatingText(amount, x, y, isCrit) {
-            const text = document.createElement('div');
-            text.className = 'floating-text';
-            text.textContent = `+${formatNumber(amount)}`;
-            
-            text.style.left = `${x}px`;
-            text.style.top = `${y}px`;
-            
-            if (isCrit) {
-                text.style.fontSize = '2em';
-                text.style.color = var(--color-secondary);
-            }
-
-            document.body.appendChild(text);
-
-            // Clean up the element after the animation
-            text.addEventListener('animationend', () => {
-                text.remove();
             });
-        }
-        
-        /**
-         * Calculates stardust for the prestige system (23).
-         */
-        function calculateStardustGain() {
-            // Rule: 1 Stardust per 1,000,000 CE earned this run
-            const gain = Math.floor(GAME_STATE.resources.cosmicEnergy / 1000000);
-            return Math.max(0, gain);
-        }
-
-        /**
-         * Handles the prestige reset logic (23).
-         */
-        function startPrestige() {
-            const gain = calculateStardustGain();
-            if (gain === 0) return;
-
-            // 1. Grant Stardust
-            GAME_STATE.resources.stardust += gain;
-
-            // 2. Calculate new multiplier (24)
-            // Example: +5% multiplier per 100 Stardust
-            GAME_STATE.prestige.stardustBonusMultiplier = 1 + (GAME_STATE.resources.stardust / 100) * 0.05;
-
-            // 3. Reset Resources and Upgrades
-            GAME_STATE.resources.cosmicEnergy = 0;
             
-            for (const type in GAME_STATE.upgrades) {
-                for (const id in GAME_STATE.upgrades[type]) {
-                    GAME_STATE.upgrades[type][id] = { level: 0, cost: UPGRADE_DATA[type][id].baseCost };
+            // Relic Render
+            const relicGrid = document.getElementById('relic-grid');
+            relicGrid.innerHTML = '';
+            RELICS.forEach(r => {
+                const unlocked = state.relics.includes(r.id);
+                relicGrid.innerHTML += `
+                    <div class="bg-slate-800 p-3 rounded border ${unlocked ? 'border-yellow-500 shadow-lg' : 'border-slate-700 opacity-50'}">
+                        <div class="text-2xl text-center mb-1">${r.icon}</div>
+                        <div class="font-bold text-xs text-center ${unlocked ? 'text-white' : 'text-gray-500'}">${unlocked ? r.name : '???'}</div>
+                        <div class="text-[10px] text-center text-gray-400">${unlocked ? r.desc : r.hint}</div>
+                    </div>
+                `;
+            });
+            
+            // Relic Drop simulation (Simple random drop on update)
+            if(Math.random() < 0.001) { // 0.1% chance per tick (10 times per second)
+                const availableRelics = RELICS.filter(r => !state.relics.includes(r.id));
+                if (availableRelics.length > 0) {
+                    const droppedRelic = availableRelics[Math.floor(Math.random() * availableRelics.length)];
+                    // Only drop if requirement is met (Simple check for now)
+                    const requiredSd = parseInt(droppedRelic.hint.match(/\d+/g) || [0])[0];
+                    if (state.sd >= requiredSd) { 
+                        state.relics.push(droppedRelic.id);
+                        showFloatMessage("Relic Found!", `${droppedRelic.name} unlocked!`, '#fbbf24');
+                        saveGame();
+                    }
                 }
             }
-
-            // 4. Update Stats and Count
-            GAME_STATE.prestige.currentPrestigeCount += 1;
-            GAME_STATE.time.lifetimeStats.totalPrestiges += 1;
-
-            alert(`PRESTIGE COMPLETE! Gained ${formatNumber(gain)} Stardust!`);
-            
-            calculateAllRates();
-            saveGame();
-            updateDisplay();
         }
 
-        // ====================================================================
-        // INITIALIZATION & SAVE/LOAD (Q)
-        // ====================================================================
-
-        /**
-         * Saves game state to browser storage (54).
-         */
-        function saveGame() {
-            localStorage.setItem('cosmicIdleSave', JSON.stringify(GAME_STATE));
-            document.getElementById('cloud-status').textContent = 'Cloud Saved';
+        function format(num) {
+            if (num >= 1e18) return (num / 1e18).toFixed(2) + "E";
+            if (num >= 1e15) return (num / 1e15).toFixed(2) + "P";
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + "T";
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + "B";
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + "M";
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + "K";
+            return Math.floor(num).toLocaleString();
         }
 
-        /**
-         * Handles offline income calculation (2).
-         */
-        function calculateOfflineIncome() {
-            const currentTime = Date.now();
-            const timeOffline = (currentTime - GAME_STATE.time.lastSaveTime) / 1000;
-            
-            // Cap offline time at 24 hours (86400 seconds)
-            const maxTime = 86400; 
-            const effectiveTime = Math.min(timeOffline, maxTime);
+        function createFloat(text, x, y, color='#fff') {
+            const el = document.createElement('div');
+            el.className = 'float-txt';
+            el.innerText = text;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.color = color;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
 
-            const gain = effectiveTime * GAME_STATE.rates.currentCEPerSecond * GAME_STATE.events.eventMultiplier; // (22) Offline Boosts
-            if (gain > 0) {
-                GAME_STATE.resources.cosmicEnergy += gain;
-                alert(`Welcome back, Cosmic Explorer! Earned ${formatNumber(gain)} CE while you were away (${Math.round(effectiveTime)}s).`);
+        function showFloatMessage(title, text, color) {
+            const el = document.createElement('div');
+            el.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 glass-panel p-4 rounded-lg z-[200] text-center';
+            el.style.color = color;
+            el.innerHTML = `<p class="text-xl font-bold">${title}</p><p class="text-sm text-gray-300">${text}</p>`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 2500);
+        }
+
+        
+        function simulateLeaderboard() {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = '';
+            // Fake data for offline mode
+            const fakeData = [
+                {name: "VoidWalker", val: 1e12},
+                {name: "StarLord99", val: 5e9},
+                {name: "CosmicCat", val: 1e6},
+                {name: "YOU", val: state.ce}
+            ];
+            fakeData.sort((a,b) => b.val - a.val);
+            
+            fakeData.forEach((d, i) => {
+                 list.innerHTML += `
+                    <li class="flex justify-between bg-slate-800 p-2 rounded border-b border-white/5 ${d.name === 'YOU' ? 'border-l-4 border-indigo-500' : ''}">
+                        <span class="font-mono text-yellow-500">#${i+1}</span>
+                        <span class="text-gray-300 text-xs truncate w-24">${d.name}</span>
+                        <span class="text-ce font-bold">${format(d.val)} CE</span>
+                    </li>`;
+            });
+        }
+
+        // --- TUTORIAL ---
+        function clearHighlights() {
+            document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+        }
+
+        function startTutorial() {
+            state.tutorial = 1;
+            document.getElementById('core-btn').classList.add('tutorial-highlight');
+            // Step 1: Click the Core (Interaction: CLICK)
+            showTut("Welcome, Pilot. Click the highlighted <b class='text-indigo-400'>Core</b> repeatedly to generate Cosmic Energy (CE).", false);
+        }
+        
+        // continueInteraction determines if the step was completed by clicking the game element (true) or clicking the modal's CONTINUE button (false)
+        window.nextTutorial = (continueInteraction = false) => {
+            
+            clearHighlights();
+
+            // 1. Logic to advance counter if interaction was successful
+            if (continueInteraction) {
+                state.tutorial++;
+            }
+            
+            // 2. Step progression logic
+            if (state.tutorial === 2) {
+                // Step 2: Go to Shop (Interaction: NAV CLICK)
+                document.getElementById('nav-upgrades').classList.add('tutorial-highlight');
+                window.setTab('home'); // Ensure we are on home tab before asking to switch
+                showTut("Excellent. Now click the highlighted <b class='text-pink-400'>Shop (🛒)</b> tab to see your first available upgrades.", false);
+            } else if (state.tutorial === 3) {
+                // Step 3: Buy upgrade (Interaction: BUTTON CLICK)
+                const firstUpgradeButton = document.getElementById('btn-c1');
+                if (firstUpgradeButton) firstUpgradeButton.classList.add('tutorial-highlight');
+                window.setTab('upgrades'); // Ensure view is on correct tab
+                showTut("Purchase the highlighted <b class='text-pink-400'>Focus Lens</b> to increase your Click Power. You need at least 15 CE.", false);
+            } else if (state.tutorial === 4) {
+                // Step 4: Go to Pets (Interaction: NAV CLICK)
+                document.getElementById('nav-pets').classList.add('tutorial-highlight');
+                window.setTab('upgrades'); // Ensure we are on an other tab before asking to switch
+                showTut("Every journey needs a partner. Click the highlighted <b class='text-teal-400'>Pets (👾)</b> tab. Equip your Star Wisp to complete this step.", false);
+            } else if (state.tutorial === 5) {
+                // Step 5: Go to Relics (Interaction: NAV CLICK)
+                document.getElementById('nav-relics').classList.add('tutorial-highlight');
+                window.setTab('pets'); // Ensure we are on an other tab before asking to switch
+                showTut("The <b class='text-amber-400'>Relics (🏺)</b> tab houses Ancient Artifacts. They drop randomly as you play and offer massive bonuses. Click the tab to check it out!", false);
+            } else if (state.tutorial === 6) {
+                // Step 6: Go to Prestige (Interaction: NAV CLICK)
+                document.getElementById('nav-prestige').classList.add('tutorial-highlight');
+                window.setTab('relics'); // Ensure we are on an other tab before asking to switch
+                showTut("When your progress slows, head to <b class='text-purple-400'>Prestige (✨)</b>. Rebirth at 1M CE to gain <b class='text-purple-400'>Stardust</b>. Click the tab.", false);
+            } else if (state.tutorial === 7) {
+                // Step 7: Final message before closing. Advance counter to 8 first.
+                // The next click of the CONTINUE button will hit the closing logic (state.tutorial === 8).
+                state.tutorial = 8; 
+                window.setTab('prestige'); 
+                showTut("You have completed the basic training! Click <b class='text-green-400'>CONTINUE</b> to close the tutorial and begin.", true);
+            } else if (state.tutorial === 8) {
+                // Step 8: FINAL CLOSE LOGIC triggered by the CONTINUE click on step 7's modal
+                // FIX: This code now correctly runs after the final "CONTINUE" click.
+                document.getElementById('tutorial-overlay').classList.add('hidden');
+                document.getElementById('tutorial-overlay').classList.remove('flex');
+                state.tutorial = 99; // Mark as complete
+                saveGame();
+                showFloatMessage("Tutorial Complete!", "You are now ready to explore the Cosmic Universe!", '#22d3ee');
+            } else {
+                // If continueInteraction was false, and we didn't match a step, increment the counter here 
+                // to avoid infinite loops when clicking the modal's continue button on non-interaction steps.
+                if(!continueInteraction) {
+                     state.tutorial++;
+                     if(state.tutorial > 99) state.tutorial = 99; // Safety cap
+                }
+            }
+        }
+        
+        // showTut now takes a boolean to control the visibility of the "CONTINUE" button
+        function showTut(text, showContinueButton) {
+            const overlay = document.getElementById('tutorial-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+
+            document.getElementById('tut-text').innerHTML = text;
+            
+            const continueBtn = document.getElementById('tut-continue-btn');
+            const actionText = document.getElementById('tut-action-text');
+
+            if (showContinueButton) {
+                continueBtn.classList.remove('hidden');
+                actionText.classList.add('hidden');
+                // The button now calls nextTutorial(false). The logic handles the increment on the next call.
+                continueBtn.onclick = () => nextTutorial(false); 
+            } else {
+                continueBtn.classList.add('hidden');
+                actionText.classList.remove('hidden');
+                actionText.innerText = "Please interact with the highlighted element in the game to proceed.";
             }
         }
 
-        /**
-         * Initializes UI and starts game (C).
-         */
-        function initGame() {
-            // Get initial UI references
-            energyDisplayElement = document.getElementById('energy-display');
-            cpcRateElement = document.getElementById('cpc-rate');
-            cpsRateElement = document.getElementById('cps-rate');
-            
-            // 1. Initial Rate Calculation
-            calculateAllRates();
-            
-            // 2. Offline Income Check
-            calculateOfflineIncome();
+        // --- SAVE/LOAD LOCALSTORAGE ---
+        const SAVE_KEY = 'cosmic_idle_save_v2'; 
 
-            // 3. Setup Primary Click Handler (1)
-            clickButton.addEventListener('click', handlePrimaryAction);
-            
-            // 4. Initial UI Render
-            updateDisplay();
-            
-            // 5. Start the game loop
-            lastUpdateTime = Date.now();
-            requestAnimationFrame(gameLoop);
-            
-            // 6. Cloud Status (Q)
-            document.getElementById('cloud-status').textContent = 'Connected & Syncing';
-        }
-        
-        /**
-         * Handles Tab Navigation (8).
-         */
-        function showTab(tabId, button) {
-            document.querySelectorAll('.content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            document.getElementById(tabId).classList.add('active');
-            button.classList.add('active');
+        function saveGame() {
+            try {
+                localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+                const status = document.getElementById('save-status');
+                if(status) status.innerText = 'Saved.';
+                setTimeout(() => status.innerText = 'Offline Ready', 1000);
+            } catch(e) {
+                console.error("Could not save to localStorage:", e);
+            }
         }
 
-        // Wait for the HTML document to fully load before starting the game
-        document.addEventListener('DOMContentLoaded', initGame);
+        function loadGame() {
+            const saved = localStorage.getItem(SAVE_KEY);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    // Merge and ensure all new properties exist (like 'tutorial')
+                    state = { ...state, ...parsed, upgrades: { ...state.upgrades, ...parsed.upgrades } };
+                } catch(e) { console.error("Save corrupt. Starting new game."); }
+            } 
+            
+            // Start tutorial if new game, or resume if incomplete
+            if (state.tutorial === 0) {
+                startTutorial();
+            } else if (state.tutorial > 0 && state.tutorial < 8) {
+                // If they reloaded mid-tutorial, try to jump back to the correct step
+                nextTutorial(false); 
+            }
+            updateUI();
+        }
 
-        // Expose purchaseUpgrade to the global scope for use in the onclick attributes
-        window.purchaseUpgrade = purchaseUpgrade;
-        window.startPrestige = startPrestige;
-        window.showTab = showTab;
-        window.formatNumber = formatNumber; // Utility for debugging/display
+        // --- INITIALIZATION ---
+
+        // Renamed and isolated the core app startup logic
+        function loadGameDataAndStartApp() {
+            initShop();
+            loadGame();
+
+            // Passive income loop
+            setInterval(() => {
+                state.ce += getCPS() / 10;
+                updateUI();
+            }, 100);
+
+            // Auto-save loop
+            setInterval(saveGame, 5000);
+            
+            // Set initial tab 
+            window.setTab('home');
+
+            // Generate icon asynchronously
+            generateAnimeIcon();
+        }
+
+        // NEW: Handles the loading screen transition
+        function init() {
+            const loadingScreen = document.getElementById('app-loading-screen');
+            const body = document.body;
+            
+            // 1. Simulate a loading delay (e.g., 2000ms)
+            setTimeout(() => {
+                // 2. Start the application logic
+                loadGameDataAndStartApp();
+                
+                // 3. Fade out the loading screen
+                loadingScreen.style.opacity = '0';
+                
+                // 4. Wait for the transition and then remove it entirely
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    body.classList.add('loaded'); // Reveal the body content
+                }, 500); 
+                
+            }, 2000); // Simulated loading time
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
